@@ -78,6 +78,10 @@
 
   </header>
 
+<button onclick="setLanguage('tr')">Türkçe</button> 
+<button onclick="setLanguage('en')">English</button>
+
+
   <main class="main">
 
     <!-- Hero Section -->
@@ -812,6 +816,19 @@
         </div>
       </div>
     </div>
+
+    <script> 
+    const translations = { 
+    tr: { home: "Ana Sayfa", about: "Hakkımda", resume: "Özgeçmiş", portfolio: "Portföy", services: "Hizmetler", contact: "İletişim" }, 
+    en: { home: "Home", about: "About", resume: "Resume", portfolio: "Portfolio", services: "Services", contact: "Contact" } }; 
+    function setLanguage(lang) { 
+      document.getElementById("nav-home").innerText = translations[lang].home; 
+      document.getElementById("nav-about").innerText = translations[lang].about; 
+      document.getElementById("nav-resume").innerText = translations[lang].resume; 
+      document.getElementById("nav-portfolio").innerText = translations[lang].portfolio; 
+      document.getElementById("nav-services").innerText = translations[lang].services; 
+      document.getElementById("nav-contact").innerText = translations[lang].contact; } 
+    </script>
   </footer>
 
   <!-- Scroll Top -->

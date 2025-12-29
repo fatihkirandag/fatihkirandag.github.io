@@ -27,6 +27,23 @@
   <!-- Main CSS File -->
   <link href="assets/css/main.css" rel="stylesheet">
 
+<style>
+  .lang-switch button {
+    padding: 6px 12px;
+    border: none;
+    margin-left: 5px;
+    cursor: pointer;
+    border-radius: 6px;
+    background: #eee;
+  }
+  .lang-switch button.active {
+    background: #4154f1;
+    color: #fff;
+  }
+  .tr { display: block; }
+  .en { display: none; }
+</style>
+
   <!-- =======================================================
   * Template Name: MyResume
   * Template URL: https://bootstrapmade.com/free-html-bootstrap-template-my-resume/
@@ -37,6 +54,12 @@
 </head>
 
 <body class="index-page">
+
+  <!-- Language Switch -->
+<div class="lang-switch" style="position: fixed; top: 20px; right: 20px; z-index: 9999;">
+  <button id="btnTR" onclick="setLang('tr')" class="active">🇹🇷 TR</button>
+  <button id="btnEN" onclick="setLang('en')">🇬🇧 EN</button>
+</div>
 
   <header id="header" class="header d-flex flex-column justify-content-center">
 
@@ -811,6 +834,16 @@
 
   <!-- Main JS File -->
   <script src="assets/js/main.js"></script>
+
+  <script>
+function setLang(lang) {
+  document.querySelectorAll('.tr').forEach(e => e.style.display = lang === 'tr' ? 'block' : 'none');
+  document.querySelectorAll('.en').forEach(e => e.style.display = lang === 'en' ? 'block' : 'none');
+
+  document.getElementById('btnTR').classList.toggle('active', lang === 'tr');
+  document.getElementById('btnEN').classList.toggle('active', lang === 'en');
+}
+</script>
 
 </body>
 

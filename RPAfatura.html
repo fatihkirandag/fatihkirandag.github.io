@@ -28,6 +28,47 @@
   <!-- Main CSS File -->
    <link href="assets/css/main.css" rel="stylesheet">
 
+<style>
+  .lang-switch a {
+    padding: 8px 16px;
+    border: 1px solid #e0e0e0;
+    margin-left: 5px;
+    cursor: pointer;
+    border-radius: 50px;
+    background: #fff;
+    text-decoration: none;
+    color: #333;
+    display: inline-block;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  .lang-switch a:hover {
+    background: #f8f9fa;
+    transform: translateY(-2px);
+  }
+  .lang-switch a.active {
+    background: #4154f1;
+    color: #fff;
+    border-color: #4154f1;
+    box-shadow: 0 4px 10px rgba(65, 84, 241, 0.3);
+  }
+  /* Language Visibility Logic */
+  body.lang-en .lang-tr { display: none !important; }
+  body.lang-tr .lang-en { display: none !important; }
+</style>
+
+<script>
+  function switchLanguage(lang) {
+    document.body.classList.remove('lang-en', 'lang-tr');
+    document.body.classList.add('lang-' + lang);
+    
+    // Update active button state
+    document.querySelectorAll('.lang-switch a').forEach(el => el.classList.remove('active'));
+    document.querySelector('.lang-switch a[data-lang="' + lang + '"]').classList.add('active');
+  }
+</script>
+
   <!-- =======================================================
   * Template Name: MyResume
   * Template URL: https://bootstrapmade.com/free-html-bootstrap-template-my-resume/
@@ -37,8 +78,13 @@
   ======================================================== -->
 </head>
 
-<body class="starter-page-page">
+<body class="starter-page-page lang-en">
 
+  <!-- Language Switch -->
+<div class="lang-switch" style="position: fixed; top: 20px; right: 20px; z-index: 9999;">
+  <a href="javascript:void(0)" onclick="switchLanguage('tr')" data-lang="tr">TR</a>
+  <a href="javascript:void(0)" onclick="switchLanguage('en')" data-lang="en" class="active">EN</a>
+</div>
   
   <header id="header" class="header d-flex flex-column justify-content-center">
 
@@ -46,11 +92,11 @@
 
     <nav id="navmenu" class="navmenu">
       <ul>
-        <li><a href="https://fatihkirandag.github.io/index.html#hero"><i class="bi bi-house navicon"></i><span>Home</span></a></li>
-        <li><a href="https://fatihkirandag.github.io/index.html#about"><i class="bi bi-person navicon"></i><span>About</span></a></li>
-        <li><a href="https://fatihkirandag.github.io/index.html#resume"><i class="bi bi-file-earmark-text navicon"></i><span>Resume</span></a></li>
-        <li><a href="https://fatihkirandag.github.io/index.html#portfolio"><i class="bi bi-images navicon"></i><span>Portfolio</span></a></li>
-        <li><a href="https://fatihkirandag.github.io/index.html#Social"><i class="bi bi-hdd-stack navicon"></i><span>Social Life</span></a></li>
+        <li><a href="index.html#hero" class="lang-en"><i class="bi bi-house navicon"></i><span>Home</span></a><a href="index_tr.html#hero" class="lang-tr"><i class="bi bi-house navicon"></i><span>Ana Sayfa</span></a></li>
+        <li><a href="index.html#about" class="lang-en"><i class="bi bi-person navicon"></i><span>About</span></a><a href="index_tr.html#about" class="lang-tr"><i class="bi bi-person navicon"></i><span>Hakkımda</span></a></li>
+        <li><a href="index.html#resume" class="lang-en"><i class="bi bi-file-earmark-text navicon"></i><span>Resume</span></a><a href="index_tr.html#resume" class="lang-tr"><i class="bi bi-file-earmark-text navicon"></i><span>Özgeçmiş</span></a></li>
+        <li><a href="index.html#portfolio" class="lang-en"><i class="bi bi-images navicon"></i><span>Portfolio</span></a><a href="index_tr.html#portfolio" class="lang-tr"><i class="bi bi-images navicon"></i><span>Portfolyo</span></a></li>
+        <li><a href="index.html#Social" class="lang-en"><i class="bi bi-hdd-stack navicon"></i><span>Social Life</span></a><a href="index_tr.html#Social" class="lang-tr"><i class="bi bi-hdd-stack navicon"></i><span>Sosyal Yaşam</span></a></li>
       </ul>
     </nav>
 
@@ -62,13 +108,19 @@
     <div class="page-title" data-aos="fade">
       <div class="container">
         <nav class="breadcrumbs">
-          <ol>
+          <ol class="lang-en">
             <li><a href="index.html">Home</a></li>
             <li><a href="index.html#portfolio">Portfolio</a></li>
             <li class="current"> UiPath-Based ERP Invoice Processing Automation</li>
           </ol>
+          <ol class="lang-tr">
+            <li><a href="index_tr.html">Ana Sayfa</a></li>
+            <li><a href="index_tr.html#portfolio">Portfolyo</a></li>
+            <li class="current">UiPath Tabanlı ERP Fatura İşleme Otomasyonu</li>
+          </ol>
         </nav>
-        <h1>UiPath-Based ERP Invoice Processing Automation</h1>
+        <h1 class="lang-en">UiPath-Based ERP Invoice Processing Automation</h1>
+        <h1 class="lang-tr">UiPath Tabanlı ERP Fatura İşleme Otomasyonu</h1>
       </div>
     </div><!-- End Page Title -->
 
@@ -77,8 +129,10 @@
 
       <!-- Section Title -->
       <div class="container section-title" data-aos="fade-up">
-        <h2>UiPath-Based ERP Invoice Processing Automation</h2>
-        <p>I automated the invoice processing workflow in the ERP system using UiPath.</p>
+        <h2 class="lang-en">UiPath-Based ERP Invoice Processing Automation</h2>
+        <h2 class="lang-tr">UiPath Tabanlı ERP Fatura İşleme Otomasyonu</h2>
+        <p class="lang-en">I automated the invoice processing workflow in the ERP system using UiPath.</p>
+        <p class="lang-tr">ERP sistemindeki fatura işleme iş akışını UiPath kullanarak otomatize ettim.</p>
       </div><!-- End Section Title -->
 
 <!-- Testimonials Section -->
@@ -163,13 +217,20 @@
          <!-- Section Title -->
       <div class="container section-title" data-aos="fade-up">
         <div style="text-align:center;">
-        <h3>UiPath-Based ERP Invoice Processing Automation - Detailed Description</h3>
+        <h3 class="lang-en">UiPath-Based ERP Invoice Processing Automation - Detailed Description</h3>
+        <h3 class="lang-tr">UiPath Tabanlı ERP Fatura İşleme Otomasyonu - Detaylı Açıklama</h3>
         
-        <p>To enhance operational efficiency and eliminate manual tasks within the invoice processing workflow, I developed an RPA automation using UiPath integrated with our ERP system. The project included end-to-end automation steps such as retrieving invoice data, validating the information, posting it into the ERP, and verifying the transaction outcomes.</p>
+        <div class="lang-en">
+          <p>To enhance operational efficiency and eliminate manual tasks within the invoice processing workflow, I developed an RPA automation using UiPath integrated with our ERP system. The project included end-to-end automation steps such as retrieving invoice data, validating the information, posting it into the ERP, and verifying the transaction outcomes.</p>
+          <p>The robot significantly reduced human error, ensured process consistency, and lowered operational costs. It also improved throughput during peak workload periods, enabling faster processing while allowing the operations team to focus on more value-added tasks instead of repetitive manual entries.</p>
+          <p>Using UiPath’s Workflow Designer, Orchestrator, and UI automation capabilities, I built a stable, traceable, and scalable automation structure. This project served as an important milestone in the digital transformation of our ERP processes.</p>
+        </div>
 
-        <p>The robot significantly reduced human error, ensured process consistency, and lowered operational costs. It also improved throughput during peak workload periods, enabling faster processing while allowing the operations team to focus on more value-added tasks instead of repetitive manual entries.</p>
-
-        <p>Using UiPath’s Workflow Designer, Orchestrator, and UI automation capabilities, I built a stable, traceable, and scalable automation structure. This project served as an important milestone in the digital transformation of our ERP processes.</p>
+        <div class="lang-tr">
+          <p>Operasyonel verimliliği artırmak ve fatura işleme iş akışındaki manuel görevleri ortadan kaldırmak için ERP sistemimizle entegre çalışan, UiPath tabanlı bir RPA otomasyonu geliştirdim. Proje; fatura verilerinin alınması, bilgilerin doğrulanması, ERP'ye işlenmesi ve işlem sonuçlarının doğrulanması gibi uçtan uca otomasyon adımlarını içeriyordu.</p>
+          <p>Robot, insan hatasını önemli ölçüde azalttı, süreç tutarlılığını sağladı ve operasyonel maliyetleri düşürdü. Ayrıca yoğun iş yükü dönemlerinde işlem hacmini artırarak daha hızlı işlem yapılmasını sağlarken, operasyon ekibinin tekrarlayan manuel girişler yerine daha katma değerli görevlere odaklanmasına olanak tanıdı.</p>
+          <p>UiPath'in İş Akışı Tasarımcısı, Orchestrator ve UI otomasyon yeteneklerini kullanarak kararlı, izlenebilir ve ölçeklenebilir bir otomasyon yapısı kurdum. Bu proje, ERP süreçlerimizin dijital dönüşümünde önemli bir kilometre taşı oldu.</p>
+        </div>
         </div>
       </div><!-- End Section Title -->
       
@@ -178,7 +239,8 @@
   <footer id="footer" class="footer position-relative light-background">
     <div class="container">
       <h3 class="sitename">Fatih KIRANDAĞ</h3>
-      <p>“Thank you for reviewing my portfolio. Every project you see here carries a piece of my learning journey and my genuine passion for what I do.”.</p>
+      <p class="lang-en">“Thank you for reviewing my portfolio. Every project you see here carries a piece of my learning journey and my genuine passion for what I do.”.</p>
+      <p class="lang-tr">“Portfolyomu incelediğiniz için teşekkür ederim. Burada gördüğünüz her proje, öğrenme yolculuğumun bir parçasını ve işime olan samimi tutkumu taşımaktadır.”</p>
       <div class="social-links d-flex justify-content-center">
         <a href="https://www.facebook.com/fatihkirandag/"><i class="bi bi-facebook"></i></a>
         <a href="https://www.instagram.com/fatihkirandag/"><i class="bi bi-instagram"></i></a>
@@ -187,7 +249,7 @@
       </div>
       <div class="container">
         <div class="copyright">
-          <span>Copyright</span> <strong class="px-1 sitename">2026</strong> <span>All Rights Reserved</span>
+          <span>Copyright</span> <strong class="px-1 sitename">2026</strong> <span class="lang-en">All Rights Reserved</span><span class="lang-tr">Tüm Hakları Saklıdır</span>
         </div>
         <div class="credits">
           <!-- All the links in the footer should remain intact. -->

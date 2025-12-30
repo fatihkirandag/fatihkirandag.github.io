@@ -29,19 +29,28 @@
 
 <style>
   .lang-switch a {
-    padding: 6px 12px;
-    border: none;
+    padding: 8px 16px;
+    border: 1px solid #e0e0e0;
     margin-left: 5px;
     cursor: pointer;
-    border-radius: 6px;
-    background: #eee;
+    border-radius: 50px;
+    background: #fff;
     text-decoration: none;
-    color: #000;
+    color: #333;
     display: inline-block;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  .lang-switch a:hover {
+    background: #f8f9fa;
+    transform: translateY(-2px);
   }
   .lang-switch a.active {
     background: #4154f1;
     color: #fff;
+    border-color: #4154f1;
+    box-shadow: 0 4px 10px rgba(65, 84, 241, 0.3);
   }
 </style>
 
@@ -58,8 +67,8 @@
 
   <!-- Language Switch -->
 <div class="lang-switch" style="position: fixed; top: 20px; right: 20px; z-index: 9999;">
-  <a href="index_tr.html">🇹🇷 TR</a>
-  <a href="index.html" class="active">🇬🇧 EN</a>
+  <a href="index_tr.html">TR</a>
+  <a href="index.html" class="active">EN</a>
 </div>
 
   <header id="header" class="header d-flex flex-column justify-content-center">

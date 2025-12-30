@@ -28,15 +28,18 @@
   <link href="assets/css/main.css" rel="stylesheet">
 
 <style>
-  .lang-switch button {
+  .lang-switch a {
     padding: 6px 12px;
     border: none;
     margin-left: 5px;
     cursor: pointer;
     border-radius: 6px;
     background: #eee;
+    text-decoration: none;
+    color: #000;
+    display: inline-block;
   }
-  .lang-switch button.active {
+  .lang-switch a.active {
     background: #4154f1;
     color: #fff;
   }
@@ -55,8 +58,8 @@
 
   <!-- Language Switch -->
 <div class="lang-switch" style="position: fixed; top: 20px; right: 20px; z-index: 9999;">
-  <button id="btnTR" onclick="setLang('tr')" class="active">🇹🇷 TR</button>
-  <button id="btnEN" onclick="setLang('en')">🇬🇧 EN</button>
+  <a href="index_tr.html">🇹🇷 TR</a>
+  <a href="index.html" class="active">🇬🇧 EN</a>
 </div>
 
   <header id="header" class="header d-flex flex-column justify-content-center">
@@ -75,9 +78,6 @@
     </nav>
 
   </header>
-
-<button onclick="setLanguage('tr')">Türkçe</button> 
-<button onclick="setLanguage('en')">English</button>
 
 
   <main class="main">
@@ -586,18 +586,6 @@
       </div>
     </div>
 
-    <script> 
-    const translations = { 
-    tr: { home: "Ana Sayfa", about: "Hakkımda", resume: "Özgeçmiş", portfolio: "Portföy", services: "Hizmetler", contact: "İletişim" }, 
-    en: { home: "Home", about: "About", resume: "Resume", portfolio: "Portfolio", services: "Services", contact: "Contact" } }; 
-    function setLanguage(lang) { 
-      document.getElementById("nav-home").innerText = translations[lang].home; 
-      document.getElementById("nav-about").innerText = translations[lang].about; 
-      document.getElementById("nav-resume").innerText = translations[lang].resume; 
-      document.getElementById("nav-portfolio").innerText = translations[lang].portfolio; 
-      document.getElementById("nav-services").innerText = translations[lang].services; 
-      document.getElementById("nav-contact").innerText = translations[lang].contact; } 
-    </script>
   </footer>
 
   <!-- Scroll Top -->

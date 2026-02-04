@@ -1,47 +1,100 @@
 class Urun:
-    """Depodaki tek bir ürünü temsil eder."""
-    def __init__(self, urun_id, en, boy, yukseklik):
+    """Sipariş satırındaki bir ürünü ve miktarını temsil eder."""
+    def __init__(self, urun_id, en, boy, yukseklik, miktar=1):
         self.urun_id = urun_id
         self.en = en
         self.boy = boy
         self.yukseklik = yukseklik
+        self.miktar = miktar
         self.hacim = en * boy * yukseklik
 
     def __repr__(self):
-        return f"Urun(ID: {self.urun_id}, Boyut: {self.en}x{self.boy}x{self.yukseklik}, Hacim: {self.hacim})"
+        return f"Urun(ID: {self.urun_id}, Boyut: {self.en}x{self.boy}x{self.yukseklik}, Hacim: {self.hacim}, Adet: {self.miktar})"
+
+class Yerlesim:
+    """Paletteki bir ürünün konumunu ve oryantasyonunu tutar."""
+    def __init__(self, urun, x, y, z, w, d, h):
+        self.urun = urun
+        self.x = x
+        self.y = y
+        self.z = z
+        self.w = w
+        self.d = d
+        self.h = h
+
+    def __repr__(self):
+        return f"📦 {self.urun.urun_id} -> Konum: (x:{self.x}, y:{self.y}, z:{self.z}) | Boyut: {self.w}x{self.d}x{self.h}"
 
 class Palet:
-    """Ürünlerin yerleştirildiği paleti temsil eder."""
+    """3D Yerleştirme mantığına sahip Palet sınıfı (CubeMaster benzeri)."""
     def __init__(self, palet_id, en, boy, yukseklik):
         self.palet_id = palet_id
         self.en = en
         self.boy = boy
         self.yukseklik = yukseklik
-        self.max_hacim = en * boy * yukseklik
-        self.mevcut_hacim = 0
-        self.urunler = []
+        self.yerlesimler = []
+        # Yerleştirme için aday noktalar (x, y, z). Başlangıçta sadece (0,0,0) var.
+        self.noktalar = [(0, 0, 0)]
+
+    def cakisma_var_mi(self, x, y, z, w, d, h):
+        """Verilen koordinat ve boyutlarda çakışma veya taşma kontrolü."""
+        # 1. Palet sınırları kontrolü
+        if x + w > self.en or y + d > self.boy or z + h > self.yukseklik:
+            return True
+        
+        # 2. Diğer kutularla çakışma kontrolü
+        for p in self.yerlesimler:
+            if (x < p.x + p.w and x + w > p.x and
+                y < p.y + p.d and y + d > p.y and
+                z < p.z + p.h and z + h > p.z):
+                return True
+        return False
 
     def ekle(self, urun):
-        """Eğer yer varsa ve boyutlar uygunsa ürünü palete ekler."""
-        # 1. Hacim kontrolü
-        if self.mevcut_hacim + urun.hacim > self.max_hacim:
+        """Ürünü en uygun boşluğa yerleştirmeye çalışır (3D Bin Packing)."""
+        # Hacim kontrolü: Eğer ürün eklendiğinde %100 doluluk geçiliyorsa direkt reddet
+        mevcut_hacim = sum(y.w * y.d * y.h for y in self.yerlesimler)
+        if mevcut_hacim + urun.hacim > (self.en * self.boy * self.yukseklik):
             return False
 
-        # 2. Boyut kontrolü (Döndürme ihtimali dahil)
-        # Ürünün boyutlarını ve paletin boyutlarını sıralayıp karşılaştırıyoruz.
-        urun_dims = sorted([urun.en, urun.boy, urun.yukseklik])
-        palet_dims = sorted([self.en, self.boy, self.yukseklik])
+        # Ürünün 6 farklı döndürme ihtimali (W, D, H permütasyonları)
+        oryantasyonlar = list(set([
+            (urun.en, urun.boy, urun.yukseklik),
+            (urun.en, urun.yukseklik, urun.boy),
+            (urun.boy, urun.en, urun.yukseklik),
+            (urun.boy, urun.yukseklik, urun.en),
+            (urun.yukseklik, urun.en, urun.boy),
+            (urun.yukseklik, urun.boy, urun.en)
+        ]))
         
-        if any(u > p for u, p in zip(urun_dims, palet_dims)):
-            return False
+        # Aday noktaları Z (yükseklik), sonra Y, sonra X'e göre sırala.
+        # Bu, kutuları önce alta, sonra arkaya, sonra sola yaslamaya çalışır.
+        self.noktalar.sort(key=lambda p: (p[2], p[1], p[0]))
 
-        self.urunler.append(urun)
-        self.mevcut_hacim += urun.hacim
-        return True
+        for x, y, z in self.noktalar:
+            for w, d, h in oryantasyonlar:
+                if not self.cakisma_var_mi(x, y, z, w, d, h):
+                    # Yerleştirme başarılı
+                    yeni_yerlesim = Yerlesim(urun, x, y, z, w, d, h)
+                    self.yerlesimler.append(yeni_yerlesim)
+                    
+                    # Yeni aday noktaları ekle (Kutunun sağ üstü, sol üstü, önü vs.)
+                    self.noktalar.append((x + w, y, z))
+                    self.noktalar.append((x, y + d, z))
+                    self.noktalar.append((x, y, z + h))
+                    
+                    # Kullanılan noktayı listeden çıkar
+                    if (x, y, z) in self.noktalar:
+                        self.noktalar.remove((x, y, z))
+                    
+                    return True
+        return False
 
     def __repr__(self):
-        doluluk_orani = (self.mevcut_hacim / self.max_hacim) * 100
-        return f"Palet #{self.palet_id} [Doluluk: %{doluluk_orani:.1f} - {self.mevcut_hacim}/{self.max_hacim}]"
+        dolu_hacim = sum(y.w * y.d * y.h for y in self.yerlesimler)
+        toplam_hacim = self.en * self.boy * self.yukseklik
+        doluluk_orani = (dolu_hacim / toplam_hacim) * 100
+        return f"Palet #{self.palet_id} [Doluluk: %{doluluk_orani:.1f} - {len(self.yerlesimler)} Kutu]"
 
 def wms_simulasyon(wms_emri, palet_en, palet_boy, palet_yukseklik):
     """
@@ -51,9 +104,15 @@ def wms_simulasyon(wms_emri, palet_en, palet_boy, palet_yukseklik):
     paletler = []
     palet_sayaci = 1
     
+    # Miktarları dikkate alarak paketlenecek tüm kutuların listesini oluştur
+    paketlenecek_kutular = []
+    for urun in wms_emri:
+        for _ in range(urun.miktar):
+            paketlenecek_kutular.append(urun)
+
     # Ürünleri hacimlerine göre büyükten küçüğe sıralıyoruz.
     # Bu genellikle en verimli paketlemeyi sağlar.
-    sirali_emir = sorted(wms_emri, key=lambda x: x.hacim, reverse=True)
+    sirali_emir = sorted(paketlenecek_kutular, key=lambda x: x.hacim, reverse=True)
     
     for urun in sirali_emir:
         yerlestirildi = False
@@ -84,14 +143,14 @@ if __name__ == "__main__":
     
     # --- ÖRNEK WMS EMRİ ---
     gelen_siparisler = [
-        Urun("Kutu-A", 30, 40, 50),
-        Urun("Kutu-B", 50, 60, 40),
-        Urun("Kutu-C", 40, 40, 40),
-        Urun("Kutu-D", 20, 20, 20),
-        Urun("Kutu-E", 60, 80, 50),
-        Urun("Kutu-F", 10, 10, 10),
-        Urun("Kutu-G", 35, 35, 35),
-        Urun("Dev-Kutu", 200, 200, 200), # Bu sığmamalı
+        Urun("Kutu-A", 30, 40, 50, 5),
+        Urun("Kutu-B", 50, 60, 40, 2),
+        Urun("Kutu-C", 40, 40, 40, 3),
+        Urun("Kutu-D", 20, 20, 20, 10),
+        Urun("Kutu-E", 60, 80, 500, 1),
+        Urun("Kutu-F", 10, 10, 100, 5),
+        Urun("Kutu-G", 35, 35, 35, 4),
+        Urun("Dev-Kutu", 200, 200, 200, 1), # Bu sığmamalı
     ]
 
     print(f"Simülasyon Başlatılıyor... (Palet: {P_EN}x{P_BOY}x{P_YUK})\n")
@@ -101,6 +160,6 @@ if __name__ == "__main__":
     print(f"Toplam {len(sonuc_paletler)} adet palet oluşturuldu:\n")
     for p in sonuc_paletler:
         print(p)
-        for u in p.urunler:
-            print(f"  └── {u}")
+        for yerlesim in p.yerlesimler:
+            print(f"  {yerlesim}")
         print("-" * 30)

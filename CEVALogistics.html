@@ -28,6 +28,47 @@
   <!-- Main CSS File -->
    <link href="assets/css/main.css" rel="stylesheet">
 
+<style>
+  .lang-switch a {
+    padding: 8px 16px;
+    border: 1px solid #e0e0e0;
+    margin-left: 5px;
+    cursor: pointer;
+    border-radius: 50px;
+    background: #fff;
+    text-decoration: none;
+    color: #333;
+    display: inline-block;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  .lang-switch a:hover {
+    background: #f8f9fa;
+    transform: translateY(-2px);
+  }
+  .lang-switch a.active {
+    background: #4154f1;
+    color: #fff;
+    border-color: #4154f1;
+    box-shadow: 0 4px 10px rgba(65, 84, 241, 0.3);
+  }
+  /* Language Visibility Logic */
+  body.lang-en .lang-tr { display: none !important; }
+  body.lang-tr .lang-en { display: none !important; }
+</style>
+
+<script>
+  function switchLanguage(lang) {
+    document.body.classList.remove('lang-en', 'lang-tr');
+    document.body.classList.add('lang-' + lang);
+    
+    // Update active button state
+    document.querySelectorAll('.lang-switch a').forEach(el => el.classList.remove('active'));
+    document.querySelector('.lang-switch a[data-lang="' + lang + '"]').classList.add('active');
+  }
+</script>
+
   <!-- =======================================================
   * Template Name: MyResume
   * Template URL: https://bootstrapmade.com/free-html-bootstrap-template-my-resume/
@@ -37,8 +78,13 @@
   ======================================================== -->
 </head>
 
-<body class="starter-page-page">
+<body class="starter-page-page lang-en">
 
+  <!-- Language Switch -->
+<div class="lang-switch" style="position: fixed; top: 20px; right: 20px; z-index: 9999;">
+  <a href="javascript:void(0)" onclick="switchLanguage('tr')" data-lang="tr">TR</a>
+  <a href="javascript:void(0)" onclick="switchLanguage('en')" data-lang="en" class="active">EN</a>
+</div>
   
   <header id="header" class="header d-flex flex-column justify-content-center">
 
@@ -46,11 +92,11 @@
 
     <nav id="navmenu" class="navmenu">
       <ul>
-        <li><a href="https://fatihkirandag.github.io/index.html#hero"><i class="bi bi-house navicon"></i><span>Home</span></a></li>
-        <li><a href="https://fatihkirandag.github.io/index.html#about"><i class="bi bi-person navicon"></i><span>About</span></a></li>
-        <li><a href="https://fatihkirandag.github.io/index.html#resume"><i class="bi bi-file-earmark-text navicon"></i><span>Resume</span></a></li>
-        <li><a href="https://fatihkirandag.github.io/index.html#portfolio"><i class="bi bi-images navicon"></i><span>Portfolio</span></a></li>
-        <li><a href="https://fatihkirandag.github.io/index.html#Social"><i class="bi bi-hdd-stack navicon"></i><span>Social Life</span></a></li>
+        <li><a href="index.html#hero" class="lang-en"><i class="bi bi-house navicon"></i><span>Home</span></a><a href="index_tr.html#hero" class="lang-tr"><i class="bi bi-house navicon"></i><span>Ana Sayfa</span></a></li>
+        <li><a href="index.html#about" class="lang-en"><i class="bi bi-person navicon"></i><span>About</span></a><a href="index_tr.html#about" class="lang-tr"><i class="bi bi-person navicon"></i><span>Hakkımda</span></a></li>
+        <li><a href="index.html#resume" class="lang-en"><i class="bi bi-file-earmark-text navicon"></i><span>Resume</span></a><a href="index_tr.html#resume" class="lang-tr"><i class="bi bi-file-earmark-text navicon"></i><span>Özgeçmiş</span></a></li>
+        <li><a href="index.html#portfolio" class="lang-en"><i class="bi bi-images navicon"></i><span>Portfolio</span></a><a href="index_tr.html#portfolio" class="lang-tr"><i class="bi bi-images navicon"></i><span>Portfolyo</span></a></li>
+        <li><a href="index.html#Social" class="lang-en"><i class="bi bi-hdd-stack navicon"></i><span>Social Life</span></a><a href="index_tr.html#Social" class="lang-tr"><i class="bi bi-hdd-stack navicon"></i><span>Sosyal Yaşam</span></a></li>
       </ul>
     </nav>
 
@@ -62,13 +108,19 @@
     <div class="page-title" data-aos="fade">
       <div class="container">
         <nav class="breadcrumbs">
-          <ol>
+          <ol class="lang-en">
             <li><a href="index.html">Home</a></li>
             <li><a href="index.html#portfolio">Portfolio</a></li>
             <li class="current">CEVA Logistics Shipment Tracking Integration Project</li>
           </ol>
+          <ol class="lang-tr">
+            <li><a href="index_tr.html">Ana Sayfa</a></li>
+            <li><a href="index_tr.html#portfolio">Portfolyo</a></li>
+            <li class="current">CEVA Lojistik Gönderi Takip Entegrasyon Projesi</li>
+          </ol>
         </nav>
-        <h1>CEVA Logistics Shipment Tracking Integration Project</h1>
+        <h1 class="lang-en">CEVA Logistics Shipment Tracking Integration Project</h1>
+        <h1 class="lang-tr">CEVA Lojistik Gönderi Takip Entegrasyon Projesi</h1>
       </div>
     </div><!-- End Page Title -->
 
@@ -77,8 +129,10 @@
 
       <!-- Section Title -->
       <div class="container section-title" data-aos="fade-up">
-        <h2>CEVA Logistics Shipment Tracking Integration Project</h2>
-        <p>This project enables the automated and seamless integration of CEVA Logistics shipment data, allowing real-time retrieval of up-to-date shipment status information.</p>
+        <h2 class="lang-en">CEVA Logistics Shipment Tracking Integration Project</h2>
+        <h2 class="lang-tr">CEVA Lojistik Gönderi Takip Entegrasyon Projesi</h2>
+        <p class="lang-en">This project enables the automated and seamless integration of CEVA Logistics shipment data, allowing real-time retrieval of up-to-date shipment status information.</p>
+        <p class="lang-tr">Bu proje, CEVA Lojistik gönderi verilerinin otomatik ve sorunsuz entegrasyonunu sağlayarak güncel gönderi durumu bilgilerinin gerçek zamanlı olarak alınmasına olanak tanır.</p>
       </div><!-- End Section Title -->
 
 <!-- Testimonials Section -->
@@ -124,13 +178,20 @@
          <!-- Section Title -->
       <div class="container section-title" data-aos="fade-up">
         <div style="text-align:center;">
-        <h3>CEVA Logistics Shipment Tracking Integration Project - Detailed Description</h3>
+        <h3 class="lang-en">CEVA Logistics Shipment Tracking Integration Project - Detailed Description</h3>
+        <h3 class="lang-tr">CEVA Lojistik Gönderi Takip Entegrasyon Projesi - Detaylı Açıklama</h3>
         
-        <p>The CEVA Logistics Shipment Tracking Integration Project was designed to connect our internal processes with CEVA’s logistics platform by automatically pulling shipment data and displaying it directly on Salesforce and the company’s logistics portal. Through API-based integration, shipment status, delivery estimates, and location updates are retrieved in real time, removing the need for manual checks across multiple systems and improving data reliability.</p>
+        <div class="lang-en">
+          <p>The CEVA Logistics Shipment Tracking Integration Project was designed to connect our internal processes with CEVA’s logistics platform by automatically pulling shipment data and displaying it directly on Salesforce and the company’s logistics portal. Through API-based integration, shipment status, delivery estimates, and location updates are retrieved in real time, removing the need for manual checks across multiple systems and improving data reliability.</p>
+          <p>A key benefit of this integration is the enhanced visibility provided to sales, customer service, and planning teams. Users can instantly access all shipment information through Salesforce dashboards and the logistics portal, without logging into external CEVA interfaces. This real-time access supports faster decision-making, reduces communication delays, and ensures a more transparent shipment lifecycle.</p>
+          <p>Overall, the project strengthens operational efficiency by centralizing shipment inquiries, reducing manual workload, and enabling proactive tracking of outbound deliveries. By integrating CEVA’s shipment data directly into Salesforce and the portal, the project improves collaboration, speeds up customer response times, and contributes to a more connected and traceable logistics process.</p>
+        </div>
 
-        <p>A key benefit of this integration is the enhanced visibility provided to sales, customer service, and planning teams. Users can instantly access all shipment information through Salesforce dashboards and the logistics portal, without logging into external CEVA interfaces. This real-time access supports faster decision-making, reduces communication delays, and ensures a more transparent shipment lifecycle.</p>
-
-        <p>Overall, the project strengthens operational efficiency by centralizing shipment inquiries, reducing manual workload, and enabling proactive tracking of outbound deliveries. By integrating CEVA’s shipment data directly into Salesforce and the portal, the project improves collaboration, speeds up customer response times, and contributes to a more connected and traceable logistics process.</p>
+        <div class="lang-tr">
+          <p>CEVA Lojistik Gönderi Takip Entegrasyon Projesi, gönderi verilerini otomatik olarak çekip doğrudan Salesforce ve şirketin lojistik portalında görüntüleyerek iç süreçlerimizi CEVA'nın lojistik platformuna bağlamak için tasarlandı. API tabanlı entegrasyon sayesinde gönderi durumu, tahmini teslimat süreleri ve konum güncellemeleri gerçek zamanlı olarak alınarak birden fazla sistemde manuel kontrol ihtiyacı ortadan kaldırıldı ve veri güvenilirliği artırıldı.</p>
+          <p>Bu entegrasyonun temel faydalarından biri, satış, müşteri hizmetleri ve planlama ekiplerine sağlanan gelişmiş görünürlüktür. Kullanıcılar, harici CEVA arayüzlerine giriş yapmadan Salesforce panoları ve lojistik portalı üzerinden tüm gönderi bilgilerine anında erişebilirler. Bu gerçek zamanlı erişim, daha hızlı karar almayı destekler, iletişim gecikmelerini azaltır ve daha şeffaf bir gönderi yaşam döngüsü sağlar.</p>
+          <p>Genel olarak proje, gönderi sorgularını merkezileştirerek, manuel iş yükünü azaltarak ve giden teslimatların proaktif takibini sağlayarak operasyonel verimliliği güçlendirir. CEVA'nın gönderi verilerini doğrudan Salesforce ve portala entegre ederek iş birliğini geliştirir, müşteri yanıt sürelerini hızlandırır ve daha bağlantılı ve izlenebilir bir lojistik sürecine katkıda bulunur.</p>
+        </div>
         </div>
       </div><!-- End Section Title -->
       
@@ -139,7 +200,8 @@
   <footer id="footer" class="footer position-relative light-background">
     <div class="container">
       <h3 class="sitename">Fatih KIRANDAĞ</h3>
-      <p>“Thank you for reviewing my portfolio. Every project you see here carries a piece of my learning journey and my genuine passion for what I do.”.</p>
+      <p class="lang-en">“Thank you for reviewing my portfolio. Every project you see here carries a piece of my learning journey and my genuine passion for what I do.”.</p>
+      <p class="lang-tr">“Portfolyomu incelediğiniz için teşekkür ederim. Burada gördüğünüz her proje, öğrenme yolculuğumun bir parçasını ve işime olan samimi tutkumu taşımaktadır.”</p>
       <div class="social-links d-flex justify-content-center">
         <a href="https://www.facebook.com/fatihkirandag/"><i class="bi bi-facebook"></i></a>
         <a href="https://www.instagram.com/fatihkirandag/"><i class="bi bi-instagram"></i></a>
@@ -148,7 +210,7 @@
       </div>
       <div class="container">
         <div class="copyright">
-          <span>Copyright</span> <strong class="px-1 sitename">2026</strong> <span>All Rights Reserved</span>
+          <span>Copyright</span> <strong class="px-1 sitename">2026</strong> <span class="lang-en">All Rights Reserved</span><span class="lang-tr">Tüm Hakları Saklıdır</span>
         </div>
         <div class="credits">
           <!-- All the links in the footer should remain intact. -->

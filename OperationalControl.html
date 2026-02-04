@@ -28,6 +28,47 @@
   <!-- Main CSS File -->
    <link href="assets/css/main.css" rel="stylesheet">
 
+<style>
+  .lang-switch a {
+    padding: 8px 16px;
+    border: 1px solid #e0e0e0;
+    margin-left: 5px;
+    cursor: pointer;
+    border-radius: 50px;
+    background: #fff;
+    text-decoration: none;
+    color: #333;
+    display: inline-block;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  .lang-switch a:hover {
+    background: #f8f9fa;
+    transform: translateY(-2px);
+  }
+  .lang-switch a.active {
+    background: #4154f1;
+    color: #fff;
+    border-color: #4154f1;
+    box-shadow: 0 4px 10px rgba(65, 84, 241, 0.3);
+  }
+  /* Language Visibility Logic */
+  body.lang-en .lang-tr { display: none !important; }
+  body.lang-tr .lang-en { display: none !important; }
+</style>
+
+<script>
+  function switchLanguage(lang) {
+    document.body.classList.remove('lang-en', 'lang-tr');
+    document.body.classList.add('lang-' + lang);
+    
+    // Update active button state
+    document.querySelectorAll('.lang-switch a').forEach(el => el.classList.remove('active'));
+    document.querySelector('.lang-switch a[data-lang="' + lang + '"]').classList.add('active');
+  }
+</script>
+
   <!-- =======================================================
   * Template Name: MyResume
   * Template URL: https://bootstrapmade.com/free-html-bootstrap-template-my-resume/
@@ -37,8 +78,13 @@
   ======================================================== -->
 </head>
 
-<body class="starter-page-page">
+<body class="starter-page-page lang-en">
 
+  <!-- Language Switch -->
+<div class="lang-switch" style="position: fixed; top: 20px; right: 20px; z-index: 9999;">
+  <a href="javascript:void(0)" onclick="switchLanguage('tr')" data-lang="tr">TR</a>
+  <a href="javascript:void(0)" onclick="switchLanguage('en')" data-lang="en" class="active">EN</a>
+</div>
   
   <header id="header" class="header d-flex flex-column justify-content-center">
 
@@ -46,11 +92,11 @@
 
     <nav id="navmenu" class="navmenu">
       <ul>
-        <li><a href="https://fatihkirandag.github.io/index.html#hero"><i class="bi bi-house navicon"></i><span>Home</span></a></li>
-        <li><a href="https://fatihkirandag.github.io/index.html#about"><i class="bi bi-person navicon"></i><span>About</span></a></li>
-        <li><a href="https://fatihkirandag.github.io/index.html#resume"><i class="bi bi-file-earmark-text navicon"></i><span>Resume</span></a></li>
-        <li><a href="https://fatihkirandag.github.io/index.html#portfolio"><i class="bi bi-images navicon"></i><span>Portfolio</span></a></li>
-        <li><a href="https://fatihkirandag.github.io/index.html#Social"><i class="bi bi-hdd-stack navicon"></i><span>Social Life</span></a></li>
+        <li><a href="index.html#hero" class="lang-en"><i class="bi bi-house navicon"></i><span>Home</span></a><a href="index_tr.html#hero" class="lang-tr"><i class="bi bi-house navicon"></i><span>Ana Sayfa</span></a></li>
+        <li><a href="index.html#about" class="lang-en"><i class="bi bi-person navicon"></i><span>About</span></a><a href="index_tr.html#about" class="lang-tr"><i class="bi bi-person navicon"></i><span>Hakkımda</span></a></li>
+        <li><a href="index.html#resume" class="lang-en"><i class="bi bi-file-earmark-text navicon"></i><span>Resume</span></a><a href="index_tr.html#resume" class="lang-tr"><i class="bi bi-file-earmark-text navicon"></i><span>Özgeçmiş</span></a></li>
+        <li><a href="index.html#portfolio" class="lang-en"><i class="bi bi-images navicon"></i><span>Portfolio</span></a><a href="index_tr.html#portfolio" class="lang-tr"><i class="bi bi-images navicon"></i><span>Portfolyo</span></a></li>
+        <li><a href="index.html#Social" class="lang-en"><i class="bi bi-hdd-stack navicon"></i><span>Social Life</span></a><a href="index_tr.html#Social" class="lang-tr"><i class="bi bi-hdd-stack navicon"></i><span>Sosyal Yaşam</span></a></li>
       </ul>
     </nav>
 
@@ -62,13 +108,19 @@
     <div class="page-title" data-aos="fade">
       <div class="container">
         <nav class="breadcrumbs">
-          <ol>
+          <ol class="lang-en">
             <li><a href="index.html">Home</a></li>
             <li><a href="index.html#portfolio">Portfolio</a></li>
             <li class="current"> Operational Control Dashboard</li>
           </ol>
+          <ol class="lang-tr">
+            <li><a href="index_tr.html">Ana Sayfa</a></li>
+            <li><a href="index_tr.html#portfolio">Portfolyo</a></li>
+            <li class="current">Operasyonel Kontrol Paneli</li>
+          </ol>
         </nav>
-        <h1>Operational Control Dashboard</h1>
+        <h1 class="lang-en">Operational Control Dashboard</h1>
+        <h1 class="lang-tr">Operasyonel Kontrol Paneli</h1>
       </div>
     </div><!-- End Page Title -->
 
@@ -77,8 +129,10 @@
 
       <!-- Section Title -->
       <div class="container section-title" data-aos="fade-up">
-        <h2>Operational Control Dashboard</h2>
-        <p>I developed an operations control cockpit to monitor process performance and provide real-time visibility into key operational metrics.</p>
+        <h2 class="lang-en">Operational Control Dashboard</h2>
+        <h2 class="lang-tr">Operasyonel Kontrol Paneli</h2>
+        <p class="lang-en">I developed an operations control cockpit to monitor process performance and provide real-time visibility into key operational metrics.</p>
+        <p class="lang-tr">Süreç performansını izlemek ve temel operasyonel metriklere gerçek zamanlı görünürlük sağlamak için bir operasyon kontrol kokpiti geliştirdim.</p>
       </div><!-- End Section Title -->
 
 <!-- Testimonials Section -->
@@ -124,13 +178,20 @@
          <!-- Section Title -->
       <div class="container section-title" data-aos="fade-up">
         <div style="text-align:center;">
-        <h3>Operational Control Dashboard - Detailed Description</h3>
+        <h3 class="lang-en">Operational Control Dashboard - Detailed Description</h3>
+        <h3 class="lang-tr">Operasyonel Kontrol Paneli - Detaylı Açıklama</h3>
         
-        <p>I developed an Operations Control Cockpit integrated with the ERP system to enhance process visibility and streamline performance monitoring. By consolidating data from multiple departments into a single interface, the cockpit enabled teams to oversee operations in a comprehensive and structured way.</p>
+        <div class="lang-en">
+          <p>I developed an Operations Control Cockpit integrated with the ERP system to enhance process visibility and streamline performance monitoring. By consolidating data from multiple departments into a single interface, the cockpit enabled teams to oversee operations in a comprehensive and structured way.</p>
+          <p>The dashboard was designed to deliver real-time tracking of KPIs, processing volumes, delay indicators, and bottleneck detection. With this setup, managers gained the ability to make faster, data-driven decisions while supervising daily workflows more effectively.</p>
+          <p>This solution eliminated the need for manual reporting, reduced error risk, and significantly improved operational efficiency. The increased transparency and proactive monitoring capabilities provided a strong foundation for continuous improvement across the organization.</p>
+        </div>
 
-        <p>The dashboard was designed to deliver real-time tracking of KPIs, processing volumes, delay indicators, and bottleneck detection. With this setup, managers gained the ability to make faster, data-driven decisions while supervising daily workflows more effectively.</p>
-
-        <p>This solution eliminated the need for manual reporting, reduced error risk, and significantly improved operational efficiency. The increased transparency and proactive monitoring capabilities provided a strong foundation for continuous improvement across the organization.</p>
+        <div class="lang-tr">
+          <p>Süreç görünürlüğünü artırmak ve performans izlemeyi kolaylaştırmak için ERP sistemi ile entegre bir Operasyon Kontrol Kokpiti geliştirdim. Birden fazla departmandan gelen verileri tek bir arayüzde birleştirerek, ekiplerin operasyonları kapsamlı ve yapılandırılmış bir şekilde denetlemesini sağladım.</p>
+          <p>Kontrol paneli; KPI'ların, işlem hacimlerinin, gecikme göstergelerinin ve darboğaz tespitinin gerçek zamanlı takibini sağlamak üzere tasarlandı. Bu kurulumla yöneticiler, günlük iş akışlarını daha etkili bir şekilde denetlerken daha hızlı, veriye dayalı kararlar alma yeteneği kazandı.</p>
+          <p>Bu çözüm, manuel raporlama ihtiyacını ortadan kaldırdı, hata riskini azalttı ve operasyonel verimliliği önemli ölçüde artırdı. Artan şeffaflık ve proaktif izleme yetenekleri, organizasyon genelinde sürekli iyileştirme için güçlü bir temel oluşturdu.</p>
+        </div>
         </div>
       </div><!-- End Section Title -->
       
@@ -139,7 +200,8 @@
   <footer id="footer" class="footer position-relative light-background">
     <div class="container">
       <h3 class="sitename">Fatih KIRANDAĞ</h3>
-      <p>“Thank you for reviewing my portfolio. Every project you see here carries a piece of my learning journey and my genuine passion for what I do.”.</p>
+      <p class="lang-en">“Thank you for reviewing my portfolio. Every project you see here carries a piece of my learning journey and my genuine passion for what I do.”.</p>
+      <p class="lang-tr">“Portfolyomu incelediğiniz için teşekkür ederim. Burada gördüğünüz her proje, öğrenme yolculuğumun bir parçasını ve işime olan samimi tutkumu taşımaktadır.”</p>
       <div class="social-links d-flex justify-content-center">
         <a href="https://www.facebook.com/fatihkirandag/"><i class="bi bi-facebook"></i></a>
         <a href="https://www.instagram.com/fatihkirandag/"><i class="bi bi-instagram"></i></a>
@@ -148,7 +210,7 @@
       </div>
       <div class="container">
         <div class="copyright">
-          <span>Copyright</span> <strong class="px-1 sitename">2026</strong> <span>All Rights Reserved</span>
+          <span>Copyright</span> <strong class="px-1 sitename">2026</strong> <span class="lang-en">All Rights Reserved</span><span class="lang-tr">Tüm Hakları Saklıdır</span>
         </div>
         <div class="credits">
           <!-- All the links in the footer should remain intact. -->

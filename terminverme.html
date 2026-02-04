@@ -28,6 +28,47 @@
   <!-- Main CSS File -->
    <link href="assets/css/main.css" rel="stylesheet">
 
+<style>
+  .lang-switch a {
+    padding: 8px 16px;
+    border: 1px solid #e0e0e0;
+    margin-left: 5px;
+    cursor: pointer;
+    border-radius: 50px;
+    background: #fff;
+    text-decoration: none;
+    color: #333;
+    display: inline-block;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  .lang-switch a:hover {
+    background: #f8f9fa;
+    transform: translateY(-2px);
+  }
+  .lang-switch a.active {
+    background: #4154f1;
+    color: #fff;
+    border-color: #4154f1;
+    box-shadow: 0 4px 10px rgba(65, 84, 241, 0.3);
+  }
+  /* Language Visibility Logic */
+  body.lang-en .lang-tr { display: none !important; }
+  body.lang-tr .lang-en { display: none !important; }
+</style>
+
+<script>
+  function switchLanguage(lang) {
+    document.body.classList.remove('lang-en', 'lang-tr');
+    document.body.classList.add('lang-' + lang);
+    
+    // Update active button state
+    document.querySelectorAll('.lang-switch a').forEach(el => el.classList.remove('active'));
+    document.querySelector('.lang-switch a[data-lang="' + lang + '"]').classList.add('active');
+  }
+</script>
+
   <!-- =======================================================
   * Template Name: MyResume
   * Template URL: https://bootstrapmade.com/free-html-bootstrap-template-my-resume/
@@ -37,7 +78,13 @@
   ======================================================== -->
 </head>
 
-<body class="starter-page-page">
+<body class="starter-page-page lang-en">
+
+  <!-- Language Switch -->
+<div class="lang-switch" style="position: fixed; top: 20px; right: 20px; z-index: 9999;">
+  <a href="javascript:void(0)" onclick="switchLanguage('tr')" data-lang="tr">TR</a>
+  <a href="javascript:void(0)" onclick="switchLanguage('en')" data-lang="en" class="active">EN</a>
+</div>
 
   <header id="header" class="header d-flex flex-column justify-content-center">
 
@@ -45,11 +92,11 @@
 
     <nav id="navmenu" class="navmenu">
       <ul>
-        <li><a href="https://fatihkirandag.github.io/index.html#hero"><i class="bi bi-house navicon"></i><span>Home</span></a></li>
-        <li><a href="https://fatihkirandag.github.io/index.html#about"><i class="bi bi-person navicon"></i><span>About</span></a></li>
-        <li><a href="https://fatihkirandag.github.io/index.html#resume"><i class="bi bi-file-earmark-text navicon"></i><span>Resume</span></a></li>
-        <li><a href="https://fatihkirandag.github.io/index.html#portfolio"><i class="bi bi-images navicon"></i><span>Portfolio</span></a></li>
-        <li><a href="https://fatihkirandag.github.io/index.html#Social"><i class="bi bi-hdd-stack navicon"></i><span>Social Life</span></a></li>
+        <li><a href="index.html#hero" class="lang-en"><i class="bi bi-house navicon"></i><span>Home</span></a><a href="index_tr.html#hero" class="lang-tr"><i class="bi bi-house navicon"></i><span>Ana Sayfa</span></a></li>
+        <li><a href="index.html#about" class="lang-en"><i class="bi bi-person navicon"></i><span>About</span></a><a href="index_tr.html#about" class="lang-tr"><i class="bi bi-person navicon"></i><span>Hakkımda</span></a></li>
+        <li><a href="index.html#resume" class="lang-en"><i class="bi bi-file-earmark-text navicon"></i><span>Resume</span></a><a href="index_tr.html#resume" class="lang-tr"><i class="bi bi-file-earmark-text navicon"></i><span>Özgeçmiş</span></a></li>
+        <li><a href="index.html#portfolio" class="lang-en"><i class="bi bi-images navicon"></i><span>Portfolio</span></a><a href="index_tr.html#portfolio" class="lang-tr"><i class="bi bi-images navicon"></i><span>Portfolyo</span></a></li>
+        <li><a href="index.html#Social" class="lang-en"><i class="bi bi-hdd-stack navicon"></i><span>Social Life</span></a><a href="index_tr.html#Social" class="lang-tr"><i class="bi bi-hdd-stack navicon"></i><span>Sosyal Yaşam</span></a></li>
       </ul>
     </nav>
 
@@ -61,13 +108,19 @@
     <div class="page-title" data-aos="fade">
       <div class="container">
         <nav class="breadcrumbs">
-          <ol>
+          <ol class="lang-en">
             <li><a href="index.html">Home</a></li>
             <li><a href="index.html#portfolio">Portfolio</a></li>
             <li class="current"> Automatic Due Date Assignment</li>
           </ol>
+          <ol class="lang-tr">
+            <li><a href="index_tr.html">Ana Sayfa</a></li>
+            <li><a href="index_tr.html#portfolio">Portfolyo</a></li>
+            <li class="current">Otomatik Termin Atama</li>
+          </ol>
         </nav>
-        <h1>Automatic Due Date Assignment</h1>
+        <h1 class="lang-en">Automatic Due Date Assignment</h1>
+        <h1 class="lang-tr">Otomatik Termin Atama</h1>
       </div>
     </div><!-- End Page Title -->
 
@@ -76,8 +129,10 @@
 
       <!-- Section Title -->
       <div class="container section-title" data-aos="fade-up">
-        <h2>Automatic Due Date Assignment</h2>
-        <p>Developed an algorithm that automatically assigns due dates for incoming orders based on capacity, stock, and priority rules, and instantly reserves the required materials.</p>
+        <h2 class="lang-en">Automatic Due Date Assignment</h2>
+        <h2 class="lang-tr">Otomatik Termin Atama</h2>
+        <p class="lang-en">Developed an algorithm that automatically assigns due dates for incoming orders based on capacity, stock, and priority rules, and instantly reserves the required materials.</p>
+        <p class="lang-tr">Gelen siparişler için kapasite, stok ve öncelik kurallarına göre otomatik olarak termin tarihi atayan ve gerekli malzemeleri anında rezerve eden bir algoritma geliştirdim.</p>
       </div><!-- End Section Title -->
 
 <!-- Testimonials Section -->
@@ -136,8 +191,14 @@
          <!-- Section Title -->
       <div class="container section-title" data-aos="fade-up">
         <div style="text-align:center;">
-        <h3>Automatic Due-Date Assignment Project - Detailed Description</h3>
-        <p>Developed an automated system that assigns due dates for incoming customer orders and performs material reservations based on a predefined planning algorithm. The solution evaluates critical parameters such as capacity constraints, priority rules, production line availability, and material stock levels. Once the optimal due date is determined, the system automatically reserves the required materials, ensuring accurate inventory control and faster order processing. This eliminated manual planning and reservation tasks while enabling end-to-end automation within the ERP environment, significantly improving data consistency and operational efficiency</p>
+        <h3 class="lang-en">Automatic Due-Date Assignment Project - Detailed Description</h3>
+        <h3 class="lang-tr">Otomatik Termin Atama Projesi - Detaylı Açıklama</h3>
+        <div class="lang-en">
+          <p>Developed an automated system that assigns due dates for incoming customer orders and performs material reservations based on a predefined planning algorithm. The solution evaluates critical parameters such as capacity constraints, priority rules, production line availability, and material stock levels. Once the optimal due date is determined, the system automatically reserves the required materials, ensuring accurate inventory control and faster order processing. This eliminated manual planning and reservation tasks while enabling end-to-end automation within the ERP environment, significantly improving data consistency and operational efficiency</p>
+        </div>
+        <div class="lang-tr">
+          <p>Gelen müşteri siparişleri için termin tarihi atayan ve önceden tanımlanmış bir planlama algoritmasına dayalı olarak malzeme rezervasyonları gerçekleştiren otomatik bir sistem geliştirdim. Çözüm; kapasite kısıtlamaları, öncelik kuralları, üretim hattı uygunluğu ve malzeme stok seviyeleri gibi kritik parametreleri değerlendirir. En uygun termin tarihi belirlendikten sonra sistem, gerekli malzemeleri otomatik olarak rezerve ederek doğru envanter kontrolü ve daha hızlı sipariş işleme sağlar. Bu, manuel planlama ve rezervasyon görevlerini ortadan kaldırırken ERP ortamında uçtan uca otomasyon sağlayarak veri tutarlılığını ve operasyonel verimliliği önemli ölçüde artırdı.</p>
+        </div>
         </div>
       </div><!-- End Section Title -->
       
@@ -146,7 +207,8 @@
   <footer id="footer" class="footer position-relative light-background">
     <div class="container">
       <h3 class="sitename">Fatih KIRANDAĞ</h3>
-      <p>“Thank you for reviewing my portfolio. Every project you see here carries a piece of my learning journey and my genuine passion for what I do.”.</p>
+      <p class="lang-en">“Thank you for reviewing my portfolio. Every project you see here carries a piece of my learning journey and my genuine passion for what I do.”.</p>
+      <p class="lang-tr">“Portfolyomu incelediğiniz için teşekkür ederim. Burada gördüğünüz her proje, öğrenme yolculuğumun bir parçasını ve işime olan samimi tutkumu taşımaktadır.”</p>
       <div class="social-links d-flex justify-content-center">
         <a href="https://www.facebook.com/fatihkirandag/"><i class="bi bi-facebook"></i></a>
         <a href="https://www.instagram.com/fatihkirandag/"><i class="bi bi-instagram"></i></a>
@@ -155,7 +217,7 @@
       </div>
       <div class="container">
         <div class="copyright">
-          <span>Copyright</span> <strong class="px-1 sitename">2026</strong> <span>All Rights Reserved</span>
+          <span>Copyright</span> <strong class="px-1 sitename">2026</strong> <span class="lang-en">All Rights Reserved</span><span class="lang-tr">Tüm Hakları Saklıdır</span>
         </div>
         <div class="credits">
           <!-- All the links in the footer should remain intact. -->

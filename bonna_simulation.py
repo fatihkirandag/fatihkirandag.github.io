@@ -179,18 +179,7 @@ def api_calistir(wms_emri_json, palet_en, palet_boy, palet_yuk):
             "doluluk_orani": round(doluluk_orani, 2),
             "sku_sayisi": len(sku_ozet),
             "kutu_sayisi": len(p.yerlesimler),
-            "sku_detay": [{"sku": k, "adet": v} for k, v in sku_ozet.items()],
-            "yerlesimler": [
-                {
-                    "urun_id": y.urun.urun_id,
-                    "x": y.x,
-                    "y": y.y,
-                    "z": y.z,
-                    "w": y.w,
-                    "d": y.d,
-                    "h": y.h
-                } for y in p.yerlesimler
-            ]
+            "sku_detay": [{"sku": k, "adet": v} for k, v in sku_ozet.items()]
         })
 
     return {

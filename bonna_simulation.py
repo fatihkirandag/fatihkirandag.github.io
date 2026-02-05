@@ -95,7 +95,8 @@ class Palet:
         dolu_hacim = sum(y.w * y.d * y.h for y in self.yerlesimler)
         toplam_hacim = self.en * self.boy * self.yukseklik
         doluluk_orani = (dolu_hacim / toplam_hacim) * 100
-        return f"Palet #{self.palet_id} [Doluluk: %{doluluk_orani:.1f} - {len(self.yerlesimler)} Kutu]"
+        sku_sayisi = len(set(y.urun.urun_id for y in self.yerlesimler))
+        return f"Palet #{self.palet_id} -> Doluluk: %{doluluk_orani:.2f} | SKU Sayısı: {sku_sayisi} | Kutu Sayısı: {len(self.yerlesimler)}"
 
 def wms_simulasyon(wms_emri, palet_en, palet_boy, palet_yukseklik):
     """
@@ -158,10 +159,27 @@ def api_calistir(wms_emri_json, palet_en, palet_boy, palet_yuk):
     )
 
     sonuc = []
+    toplam_kutu = 0
+    tum_skular = set()
+
     for p in paletler:
+        dolu_hacim = sum(y.w * y.d * y.h for y in p.yerlesimler)
+        toplam_hacim = p.en * p.boy * p.yukseklik
+        doluluk_orani = (dolu_hacim / toplam_hacim) * 100
+
+        sku_ozet = {}
+        for y in p.yerlesimler:
+            sku_ozet[y.urun.urun_id] = sku_ozet.get(y.urun.urun_id, 0) + 1
+            tum_skular.add(y.urun.urun_id)
+        
+        toplam_kutu += len(p.yerlesimler)
+
         sonuc.append({
             "palet_id": p.palet_id,
-            "urun_sayisi": len(p.yerlesimler),
+            "doluluk_orani": round(doluluk_orani, 2),
+            "sku_sayisi": len(sku_ozet),
+            "kutu_sayisi": len(p.yerlesimler),
+            "sku_detay": [{"sku": k, "adet": v} for k, v in sku_ozet.items()],
             "yerlesimler": [
                 {
                     "urun_id": y.urun.urun_id,
@@ -177,6 +195,8 @@ def api_calistir(wms_emri_json, palet_en, palet_boy, palet_yuk):
 
     return {
         "toplam_palet": len(paletler),
+        "toplam_kutu": toplam_kutu,
+        "toplam_sku": len(tum_skular),
         "paletler": sonuc
     }
 
@@ -201,12 +221,24 @@ if __name__ == "__main__":
     
     sonuc_paletler = wms_simulasyon(gelen_siparisler, P_EN, P_BOY, P_YUK)
 
-    print(f"Toplam {len(sonuc_paletler)} adet palet oluşturuldu:\n")
+    toplam_kutu = sum(len(p.yerlesimler) for p in sonuc_paletler)
+    tum_skular = set(y.urun.urun_id for p in sonuc_paletler for y in p.yerlesimler)
+
+    print(f"--- SİMÜLASYON ÖZETİ ---")
+    print(f"Toplam Palet: {len(sonuc_paletler)}")
+    print(f"Toplam Kutu : {toplam_kutu}")
+    print(f"Toplam SKU  : {len(tum_skular)}")
+    print("=" * 40 + "\n")
 
     for p in sonuc_paletler:
         print(p)
-        for yerlesim in p.yerlesimler:
-            print(f"  {yerlesim}")
+        # SKU bazında gruplama ve sayım
+        sku_ozet = {}
+        for y in p.yerlesimler:
+            sku_ozet[y.urun.urun_id] = sku_ozet.get(y.urun.urun_id, 0) + 1
+        
+        for sku, adet in sku_ozet.items():
+            print(f"  -> SKU: {sku} | Adet: {adet}")
         print("-" * 30)
 
         

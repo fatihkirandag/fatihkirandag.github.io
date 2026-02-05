@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from bonna_simulasyon import api_calistir
+from bonna_simulation import api_calistir
 
 app = FastAPI()
 

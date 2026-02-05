@@ -143,17 +143,17 @@ def api_calistir(wms_emri_json, palet_en, palet_boy, palet_yuk):
 
     urunler = []
 
-    for u in wms_emri_json:
-        for _ in range(int(u["miktar"])):   # 🔥 kritik satır
-            urunler.append(
-                Urun(
-                    str(u["urun_id"]),
-                    int(u["en"]),
-                    int(u["boy"]),
-                    int(u["yukseklik"]),
-                    1   # HER ZAMAN 1
-                )
+for u in wms_emri_json:
+    for _ in range(int(u["miktar"])):
+        urunler.append(
+            Urun(
+                str(u["urun_id"]),
+                int(u["en"]),
+                int(u["boy"]),
+                int(u["yukseklik"]),
+                1  # artık tekli
             )
+        )
 
     paletler = wms_simulasyon(
         urunler,

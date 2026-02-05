@@ -1,3 +1,4 @@
+
 class Urun:
     """WMS satırındaki bir ürün ve miktarını gösterir."""
     def __init__(self, urun_id, en, boy, yukseklik, miktar=1):
@@ -134,6 +135,14 @@ def wms_simulasyon(wms_emri, palet_en, palet_boy, palet_yukseklik):
 
     return paletler
 
+
+def api_calistir(wms_emri, palet_en, palet_boy, palet_yuk):
+    return {
+        "mesaj": "çalıştı",
+        "urun_sayisi": len(wms_emri)
+    }
+
+
 if __name__ == "__main__":
     # --- AYARLAR ---
     # Palet Boyutları (Örn: Sandık 750x1150, Yükseklik sınırı 910 cm)
@@ -161,3 +170,5 @@ if __name__ == "__main__":
         for yerlesim in p.yerlesimler:
             print(f"  {yerlesim}")
         print("-" * 30)
+
+        

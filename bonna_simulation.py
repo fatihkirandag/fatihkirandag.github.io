@@ -67,6 +67,8 @@ class Palet:
             (urun.yukseklik, urun.en, urun.boy),
             (urun.yukseklik, urun.boy, urun.en)
         ]))
+        # Deterministik sonuç için oryantasyonları sırala (Her çalıştırmada aynı sırayı dener)
+        oryantasyonlar.sort(key=lambda x: (x[0], x[1], x[2]), reverse=True)
         
         # Aday noktaları Z (yükseklik), sonra Y, sonra X'e göre sırala.
         # Bu, kutuları önce alta, sonra arkaya, sonra sola yaslamaya çalışır.
@@ -144,11 +146,11 @@ def api_calistir(wms_emri_json, palet_en, palet_boy, palet_yuk):
     for u in wms_emri_json:
         urunler.append(
             Urun(
-                u["urun_id"],
-                u["en"],
-                u["boy"],
-                u["yukseklik"],
-                u["miktar"]
+                str(u["urun_id"]),
+                int(u["en"]),
+                int(u["boy"]),
+                int(u["yukseklik"]),
+                int(u["miktar"])
             )
         )
 

@@ -136,10 +136,48 @@ def wms_simulasyon(wms_emri, palet_en, palet_boy, palet_yukseklik):
     return paletler
 
 
-def api_calistir(wms_emri, palet_en, palet_boy, palet_yuk):
+def api_calistir(wms_emri_json, palet_en, palet_boy, palet_yuk):
+
+    urunler = []
+    for u in wms_emri_json:
+        urunler.append(
+            Urun(
+                u["urun_id"],
+                u["en"],
+                u["boy"],
+                u["yukseklik"],
+                u["miktar"]
+            )
+        )
+
+    paletler = wms_simulasyon(
+        urunler,
+        palet_en,
+        palet_boy,
+        palet_yuk
+    )
+
+    sonuc = []
+    for p in paletler:
+        sonuc.append({
+            "palet_id": p.palet_id,
+            "urun_sayisi": len(p.yerlesimler),
+            "yerlesimler": [
+                {
+                    "urun_id": y.urun.urun_id,
+                    "x": y.x,
+                    "y": y.y,
+                    "z": y.z,
+                    "w": y.w,
+                    "d": y.d,
+                    "h": y.h
+                } for y in p.yerlesimler
+            ]
+        })
+
     return {
-        "mesaj": "çalıştı",
-        "urun_sayisi": len(wms_emri)
+        "toplam_palet": len(paletler),
+        "paletler": sonuc
     }
 
 

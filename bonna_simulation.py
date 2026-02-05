@@ -144,15 +144,16 @@ def api_calistir(wms_emri_json, palet_en, palet_boy, palet_yuk):
     urunler = []
 
     for u in wms_emri_json:
-        urunler.append(
-            Urun(
-                str(u["urun_id"]),
-                int(u["en"]),
-                int(u["boy"]),
-                int(u["yukseklik"]),
-                int(u["miktar"])
+        for _ in range(int(u["miktar"])):   # 🔥 kritik satır
+            urunler.append(
+                Urun(
+                    str(u["urun_id"]),
+                    int(u["en"]),
+                    int(u["boy"]),
+                    int(u["yukseklik"]),
+                    1   # HER ZAMAN 1
+                )
             )
-        )
 
     paletler = wms_simulasyon(
         urunler,

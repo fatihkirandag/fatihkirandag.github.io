@@ -140,16 +140,18 @@ def wms_simulasyon(wms_emri, palet_en, palet_boy, palet_yukseklik):
 def api_calistir(wms_emri_json, palet_en, palet_boy, palet_yuk):
 
     urunler = []
+
     for u in wms_emri_json:
-        urunler.append(
-            Urun(
-                u["urun_id"],
-                u["en"],
-                u["boy"],
-                u["yukseklik"],
-                u["miktar"]
+        for _ in range(u["miktar"]):
+            urunler.append(
+                Urun(
+                    u["urun_id"],
+                    u["en"],
+                    u["boy"],
+                    u["yukseklik"],
+                    1  # artık her biri tek kutu
+                )
             )
-        )
 
     paletler = wms_simulasyon(
         urunler,
@@ -171,7 +173,7 @@ def api_calistir(wms_emri_json, palet_en, palet_boy, palet_yuk):
         for y in p.yerlesimler:
             sku_ozet[y.urun.urun_id] = sku_ozet.get(y.urun.urun_id, 0) + 1
             tum_skular.add(y.urun.urun_id)
-        
+
         toplam_kutu += len(p.yerlesimler)
 
         sonuc.append({
@@ -188,7 +190,6 @@ def api_calistir(wms_emri_json, palet_en, palet_boy, palet_yuk):
         "toplam_sku": len(tum_skular),
         "paletler": sonuc
     }
-
 
 if __name__ == "__main__":
     # --- AYARLAR ---

@@ -169,7 +169,10 @@ def api_calistir(wms_emri_json, palet_en, palet_boy, palet_yuk):
     tum_skular = set()
 
     for p in paletler:
-        dolu_hacim = sum(y.w * y.d * y.h for y in p.yerlesimler)
+        dolu_hacim = sum(
+            y.urun.en * y.urun.boy * y.urun.yukseklik
+            for y in p.yerlesimler
+)
         toplam_hacim = p.en * p.boy * p.yukseklik
         doluluk_orani = (dolu_hacim / toplam_hacim) * 100
 

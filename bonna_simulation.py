@@ -67,8 +67,14 @@ class Palet:
             (urun.yukseklik, urun.en, urun.boy),
             (urun.yukseklik, urun.boy, urun.en)
         ]))
-        # Deterministik sonuç için oryantasyonları sırala (Her çalıştırmada aynı sırayı dener)
-        oryantasyonlar.sort(key=lambda x: (x[0], x[1], x[2]), reverse=True)
+        
+        # Akıllı Sıralama: Paletin uzun kenarına, kutunun uzun kenarını denk getirmeye çalış.
+        if self.en > self.boy:
+            # Paletin eni daha geniş, kutunun enini(w) maksimize edenleri önce dene
+            oryantasyonlar.sort(key=lambda x: x[0], reverse=True)
+        else:
+            # Paletin boyu daha uzun (1150 > 750), kutunun boyunu(d) maksimize edenleri önce dene
+            oryantasyonlar.sort(key=lambda x: x[1], reverse=True)
         
         # Aday noktaları Z (yükseklik), sonra Y, sonra X'e göre sırala.
         # Bu, kutuları önce alta, sonra arkaya, sonra sola yaslamaya çalışır.
@@ -142,7 +148,6 @@ def wms_simulasyon(wms_emri, palet_en, palet_boy, palet_yukseklik):
 def api_calistir(wms_emri_json, palet_en, palet_boy, palet_yuk):
     urunler = []
 
-    # ✅ Her ürünün miktarını Urun objesine direkt yazıyoruz
     for u in wms_emri_json:
         urunler.append(
             Urun(
@@ -150,7 +155,7 @@ def api_calistir(wms_emri_json, palet_en, palet_boy, palet_yuk):
                 int(u["en"]),
                 int(u["boy"]),
                 int(u["yukseklik"]),
-                int(u["miktar"])  # burada miktarı 1 yapmak yanlış
+                int(u["miktar"])
             )
         )
 
@@ -168,29 +173,24 @@ def api_calistir(wms_emri_json, palet_en, palet_boy, palet_yuk):
 
     for p in paletler:
         # Doluluk oranı hesaplaması (hacim bazlı)
-        dolu_hacim = sum(
-            y.urun.en * y.urun.boy * y.urun.yukseklik * y.urun.miktar
-            for y in p.yerlesimler
-        )
+        dolu_hacim = sum(y.w * y.d * y.h for y in p.yerlesimler)
         toplam_hacim = p.en * p.boy * p.yukseklik
         doluluk_orani = (dolu_hacim / toplam_hacim) * 100
 
         # SKU bazlı özet
         sku_ozet = {}
         for y in p.yerlesimler:
-            sku_ozet[y.urun.urun_id] = sku_ozet.get(y.urun.urun_id, 0) + y.urun.miktar
+            sku_ozet[y.urun.urun_id] = sku_ozet.get(y.urun.urun_id, 0) + 1
             tum_skular.add(y.urun.urun_id)
 
-        toplam_kutu += sum(y.urun.miktar for y in p.yerlesimler)
+        toplam_kutu += len(p.yerlesimler)
 
         sonuc.append({
             "palet_id": p.palet_id,
             "doluluk_orani": round(doluluk_orani, 2),
             "sku_sayisi": len(sku_ozet),
-            "kutu_sayisi": sum(y.urun.miktar for y in p.yerlesimler),
-            "sku_detay": [
-                {"sku": k, "adet": v} for k, v in sku_ozet.items()
-            ]
+            "kutu_sayisi": len(p.yerlesimler),
+            "sku_detay": [{"sku": k, "adet": v} for k, v in sku_ozet.items()]
         })
 
     return {
@@ -202,42 +202,38 @@ def api_calistir(wms_emri_json, palet_en, palet_boy, palet_yuk):
 
 if __name__ == "__main__":
     # --- AYARLAR ---
-    # Palet Boyutları (Örn: Sandık 750x1150, Yükseklik sınırı 910 cm)
     P_EN = 750
     P_BOY = 1150
     P_YUK = 910
     
     # --- ÖRNEK WMS EMRİ ---
     gelen_siparisler = [
-        Urun("ASCVNT18KS", 378, 202, 114, 15),
+        Urun("ASCVNT18KS", 202, 378, 114, 15),
         Urun("ASCBNC28CK", 284, 290, 124, 20),
         Urun("ASCGRM21DZ", 228, 228, 142, 5),
         Urun("ASCGRM30DZ", 316, 316, 106, 20)
-       
     ]
 
     print(f"Simülasyon Başlatılıyor... (Palet: {P_EN}x{P_BOY}x{P_YUK})\n")
     
-    sonuc_paletler = wms_simulasyon(gelen_siparisler, P_EN, P_BOY, P_YUK)
-
-    toplam_kutu = sum(len(p.yerlesimler) for p in sonuc_paletler)
-    tum_skular = set(y.urun.urun_id for p in sonuc_paletler for y in p.yerlesimler)
+    # API fonksiyonunu test etmek için veriyi JSON formatına çevirelim
+    wms_json = [
+        {"urun_id": u.urun_id, "en": u.en, "boy": u.boy, "yukseklik": u.yukseklik, "miktar": u.miktar}
+        for u in gelen_siparisler
+    ]
+    
+    api_sonuc = api_calistir(wms_json, P_EN, P_BOY, P_YUK)
 
     print(f"--- SİMÜLASYON ÖZETİ ---")
-    print(f"Toplam Palet: {len(sonuc_paletler)}")
-    print(f"Toplam Kutu : {toplam_kutu}")
-    print(f"Toplam SKU  : {len(tum_skular)}")
+    print(f"Toplam Palet: {api_sonuc['toplam_palet']}")
+    print(f"Toplam Kutu : {api_sonuc['toplam_kutu']}")
+    print(f"Toplam SKU  : {api_sonuc['toplam_sku']}")
     print("=" * 40 + "\n")
 
-    for p in sonuc_paletler:
-        print(p)
-        # SKU bazında gruplama ve sayım
-        sku_ozet = {}
-        for y in p.yerlesimler:
-            sku_ozet[y.urun.urun_id] = sku_ozet.get(y.urun.urun_id, 0) + 1
-        
-        for sku, adet in sku_ozet.items():
-            print(f"  -> SKU: {sku} | Adet: {adet}")
+    for p in api_sonuc['paletler']:
+        print(f"Palet #{p['palet_id']} -> Doluluk: %{p['doluluk_orani']} | SKU Sayısı: {p['sku_sayisi']} | Kutu Sayısı: {p['kutu_sayisi']}")
+        for detay in p['sku_detay']:
+            print(f"  -> SKU: {detay['sku']} | Adet: {detay['adet']}")
         print("-" * 30)
 
         

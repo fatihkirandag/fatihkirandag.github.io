@@ -237,3 +237,7 @@ if __name__ == "__main__":
         print("-" * 30)
 
         
+
+        #python -m uvicorn main:app --reload
+
+        

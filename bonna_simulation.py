@@ -80,23 +80,46 @@ class Palet:
         # Bu, kutuları önce alta, sonra arkaya, sonra sola yaslamaya çalışır.
         self.noktalar.sort(key=lambda p: (p[2], p[1], p[0]))
 
+        # Best Fit Stratejisi:
+        # İlk bulduğumuz yere koymak yerine (First Fit), tüm olası nokta ve oryantasyonları deneyip
+        # en iyi skoru vereni seçiyoruz.
+        en_iyi_yerlesim = None
+        # Skor: (Z, Y, X) -> Küçük olması iyidir.
+        en_iyi_skor = (float('inf'), float('inf'), float('inf'))
+
         for x, y, z in self.noktalar:
+            # Eğer bu noktanın Z'si bile mevcut en iyi Z'den büyükse, bu noktayı ve sonrakileri atla (Sorted olduğu için)
+            if z > en_iyi_skor[0]:
+                break
+                
             for w, d, h in oryantasyonlar:
                 if not self.cakisma_var_mi(x, y, z, w, d, h):
-                    # Yerleştirme başarılı
-                    yeni_yerlesim = Yerlesim(urun, x, y, z, w, d, h)
-                    self.yerlesimler.append(yeni_yerlesim)
+                    # Geçerli bir yerleşim bulundu. Skorunu hesapla.
+                    # Öncelik: En alt (Z), En arka (Y), En sol (X)
+                    skor = (z, y, x)
                     
-                    # Yeni aday noktaları ekle (Kutunun sağ üstü, sol üstü, önü vs.)
-                    self.noktalar.append((x + w, y, z))
-                    self.noktalar.append((x, y + d, z))
-                    self.noktalar.append((x, y, z + h))
-                    
-                    # Kullanılan noktayı listeden çıkar
-                    if (x, y, z) in self.noktalar:
-                        self.noktalar.remove((x, y, z))
-                    
-                    return True
+                    if skor < en_iyi_skor:
+                        en_iyi_skor = skor
+                        en_iyi_yerlesim = (x, y, z, w, d, h)
+        
+        if en_iyi_yerlesim:
+            x, y, z, w, d, h = en_iyi_yerlesim
+            yeni_yerlesim = Yerlesim(urun, x, y, z, w, d, h)
+            self.yerlesimler.append(yeni_yerlesim)
+            
+            # Yeni aday noktaları ekle (Sınır kontrolü ile gereksiz noktaları ele)
+            if x + w < self.en:
+                self.noktalar.append((x + w, y, z))
+            if y + d < self.boy:
+                self.noktalar.append((x, y + d, z))
+            if z + h < self.yukseklik:
+                self.noktalar.append((x, y, z + h))
+            
+            # Kullanılan noktayı listeden çıkar
+            if (x, y, z) in self.noktalar:
+                self.noktalar.remove((x, y, z))
+            return True
+            
         return False
 
     def __repr__(self):
@@ -114,15 +137,26 @@ def wms_simulasyon(wms_emri, palet_en, palet_boy, palet_yukseklik):
     paletler = []
     palet_sayaci = 1
     
-    # Miktarları dikkate alarak paketlenecek tüm kutuların listesini oluştur
-    paketlenecek_kutular = []
+    # --- Gelişmiş Sıralama (Rules: IsGroupUsed=True, IsUnitloadFirst=True) ---
+    # 1. Ürünleri SKU'larına göre grupla
+    sku_gruplari = {}
     for urun in wms_emri:
-        for _ in range(urun.miktar):
-            paketlenecek_kutular.append(urun)
-
-    # Ürünleri hacimlerine göre büyükten küçüğe sıralıyoruz.
-    # Bu genellikle en verimli paketlemeyi sağlar.
-    sirali_emir = sorted(paketlenecek_kutular, key=lambda x: x.hacim, reverse=True)
+        if urun.urun_id not in sku_gruplari:
+            sku_gruplari[urun.urun_id] = []
+        sku_gruplari[urun.urun_id].append(urun)
+    
+    # 2. Grupları TEKİL ÜRÜN HACMİNE göre sırala.
+    # CubeMaster benzeri yüksek doluluk için: Fiziksel olarak büyük/kaba kutuları içeren gruplar
+    # önce yerleştirilmeli, küçük kutular aralara dolgu yapmalıdır.
+    sirali_gruplar = sorted(sku_gruplari.values(), key=lambda g: g[0].hacim, reverse=True)
+    
+    # 3. Listeyi düzleştir (Flatten)
+    sirali_emir = []
+    for grup in sirali_gruplar:
+        # Grup içindeki ürünleri de kendi içinde büyükten küçüğe sırala (Best Fit için)
+        for urun in sorted(grup, key=lambda x: x.hacim, reverse=True):
+            for _ in range(urun.miktar):
+                sirali_emir.append(urun)
     
     for urun in sirali_emir:
         yerlestirildi = False
@@ -208,10 +242,16 @@ if __name__ == "__main__":
     
     # --- ÖRNEK WMS EMRİ ---
     gelen_siparisler = [
-        Urun("ASCVNT18KS", 202, 378, 114, 15),
-        Urun("ASCBNC28CK", 284, 290, 124, 20),
-        Urun("ASCGRM21DZ", 228, 228, 142, 5),
-        Urun("ASCGRM30DZ", 316, 316, 106, 20)
+        Urun("ADFRPL18JO", 188, 386, 175, 10),
+        Urun("ADFTON10KS", 110, 221, 106, 10),
+        Urun("ADFTON36OV", 326, 326, 96, 20),
+        Urun("AGR16KS", 200, 380, 150, 7),
+        Urun("AGR19KS", 200, 380, 150, 30),
+        Urun("AGR25KS", 265, 266, 164, 20),
+        Urun("BNC01DM", 340, 464, 130, 10),
+        Urun("BNC02ST", 274, 402, 72, 3),
+        Urun("BNC03SO", 274, 402, 72, 3),
+        Urun("BNC04KHD", 281, 282, 141, 4)
     ]
 
     print(f"Simülasyon Başlatılıyor... (Palet: {P_EN}x{P_BOY}x{P_YUK})\n")

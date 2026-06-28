@@ -1,3 +1,5 @@
+import copy
+ 
 class Urun:
     """WMS satırındaki bir ürün ve miktarını gösterir."""
     def __init__(self, urun_id, en, boy, yukseklik, miktar=1):
@@ -131,56 +133,41 @@ class Palet:
 def wms_simulasyon(wms_emri, palet_en, palet_boy, palet_yukseklik):
     """
     Verilen sipariş listesini paletlere simüle eder.
-    Algoritma: First Fit Decreasing (Büyükten küçüğe sıralayıp ilk uygun yere koyma)
+    Algoritma: First Fit Decreasing (Büyükten küçüğe sıralayıp ilk uygun yere koyma).
+    Bu strateji, SKU bütünlüğünü göz ardı ederek hacim doluluğunu maksimize etmeye odaklanır.
     """
     paletler = []
     palet_sayaci = 1
     
-    # --- Gelişmiş Sıralama (Rules: IsGroupUsed=True, IsUnitloadFirst=True) ---
-    # 1. Ürünleri SKU'larına göre grupla
-    sku_gruplari = {}
-    # --- Global Sıralama (Item-Based / Kutu Bazlı) ---
-    # Ürün (SKU) ayrımı yapmaksızın, siparişteki tüm kutuları tek bir havuza alıyoruz.
+    # 1. Adım: Siparişteki tüm ürünleri tekil kutular halinde bir listeye al.
     tum_kutular = []
-    for urun in wms_emri:
-        if urun.urun_id not in sku_gruplari:
-            sku_gruplari[urun.urun_id] = []
-        sku_gruplari[urun.urun_id].append(urun)
-    
-    # 2. Grupları TEKİL ÜRÜN HACMİNE göre sırala.
-    # CubeMaster benzeri yüksek doluluk için: Fiziksel olarak büyük/kaba kutuları içeren gruplar
-    # önce yerleştirilmeli, küçük kutular aralara dolgu yapmalıdır.
-    sirali_gruplar = sorted(sku_gruplari.values(), key=lambda g: g[0].hacim, reverse=True)
-    
-    # 3. Listeyi düzleştir (Flatten)
-    sirali_emir = []
-    for grup in sirali_gruplar:
-        # Grup içindeki ürünleri de kendi içinde büyükten küçüğe sırala (Best Fit için)
-        for urun in sorted(grup, key=lambda x: x.hacim, reverse=True):
-            for _ in range(urun.miktar):
-                sirali_emir.append(urun)
-                tum_kutular.append(urun)
+    for urun_bilgisi in wms_emri:
+        for _ in range(urun_bilgisi.miktar):
+            # Her bir kutu için orijinal ürün bilgisini listeye ekle.
+            # Palet.ekle() metodu zaten tek bir kutu yerleştirir.
+            tum_kutular.append(urun_bilgisi)
 
-    # Tüm kutuları hacimlerine göre büyükten küçüğe sırala.
-    # Bu sayede SKU'su ne olursa olsun en büyük kutular önce yerleşir, küçükler boşlukları doldurur.
-    sirali_emir = sorted(tum_kutular, key=lambda x: x.hacim, reverse=True)
+    # 2. Adım: Tüm kutuları hacimlerine göre büyükten küçüğe sırala.
+    sirali_kutular = sorted(tum_kutular, key=lambda kutu: kutu.hacim, reverse=True)
     
-    for urun in sirali_emir:
+    # 3. Adım: Sıralanmış her bir kutuyu yerleştirmeye çalış.
+    for kutu in sirali_kutular:
         yerlestirildi = False
-        # Mevcut paletleri kontrol et
+        # Önce mevcut paletleri sırayla dene (First Fit)
         for palet in paletler:
-            if palet.ekle(urun):
+            if palet.ekle(kutu):
                 yerlestirildi = True
-                break
+                break # Kutu yerleşti, sonraki kutuya geç.
         
-        # Eğer hiçbir mevcut palete sığmadıysa yeni palet aç
+        # Mevcut paletlerin hiçbirine sığmadıysa yeni bir palet aç
         if not yerlestirildi:
             yeni_palet = Palet(palet_id=palet_sayaci, en=palet_en, boy=palet_boy, yukseklik=palet_yukseklik)
-            if yeni_palet.ekle(urun):
+            if yeni_palet.ekle(kutu):
                 paletler.append(yeni_palet)
                 palet_sayaci += 1
             else:
-                print(f"UYARI: {urun} palet boyutlarından veya kapasitesinden büyük olduğu için eklenemedi!")
+                # Bu durum, kutunun boş bir palete bile sığmadığı anlamına gelir.
+                print(f"UYARI: {kutu.urun_id} ID'li ürün ({kutu.en}x{kutu.boy}x{kutu.yukseklik}) palet boyutlarından büyük olduğu için yerleştirilemedi!")
 
     return paletler
 
@@ -281,9 +268,3 @@ if __name__ == "__main__":
         for detay in p['sku_detay']:
             print(f"  -> SKU: {detay['sku']} | Adet: {detay['adet']}")
         print("-" * 30)
-
-        
-
-        #python -m uvicorn main:app --reload
-
-        

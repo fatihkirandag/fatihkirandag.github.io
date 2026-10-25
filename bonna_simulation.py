@@ -50,14 +50,12 @@ class Palet:
                 return True
         return False
 
-    def ekle(self, urun):
-        """Ürünü en uygun yere yerleştirmeye çalışır (3D Bin Packing)."""
-        # Hacim kontrolü: Eğer ürün eklendiğinde %100 doluluk geçiliyorsa direkt reddet
+    def en_iyi_uyum(self, urun):
+        """Verilen ürün için tüm olası pozisyonları kontrol edip en iyi yerleşim skorunu döndürür."""
         mevcut_hacim = sum(y.w * y.d * y.h for y in self.yerlesimler)
         if mevcut_hacim + urun.hacim > (self.en * self.boy * self.yukseklik):
-            return False
+            return None
 
-        # Ürünün 6 farklı döndürme ihtimali (W, D, H permütasyonları)
         oryantasyonlar = list(set([
             (urun.en, urun.boy, urun.yukseklik),
             (urun.en, urun.yukseklik, urun.boy),
@@ -66,60 +64,51 @@ class Palet:
             (urun.yukseklik, urun.en, urun.boy),
             (urun.yukseklik, urun.boy, urun.en)
         ]))
-        
-        # Akıllı Sıralama: Paletin uzun kenarına, kutunun uzun kenarını denk getirmeye çalış.
+
         if self.en > self.boy:
-            # Paletin eni daha geniş, kutunun enini(w) maksimize edenleri önce dene
             oryantasyonlar.sort(key=lambda x: x[0], reverse=True)
         else:
-            # Paletin boyu daha uzun (1150 > 750), kutunun boyunu(d) maksimize edenleri önce dene
             oryantasyonlar.sort(key=lambda x: x[1], reverse=True)
-        
-        # Aday noktaları Z (yükseklik), sonra Y, sonra X'e göre sırala.
-        # Bu, kutuları önce alta, sonra arkaya, sonra sola yaslamaya çalışır.
-        self.noktalar.sort(key=lambda p: (p[2], p[1], p[0]))
 
-        # Best Fit Stratejisi:
-        # İlk bulduğumuz yere koymak yerine (First Fit), tüm olası nokta ve oryantasyonları deneyip
-        # en iyi skoru vereni seçiyoruz.
+        noktalar = sorted(self.noktalar, key=lambda p: (p[2], p[1], p[0]))
         en_iyi_yerlesim = None
-        # Skor: (Z, Y, X) -> Küçük olması iyidir.
         en_iyi_skor = (float('inf'), float('inf'), float('inf'))
 
-        for x, y, z in self.noktalar:
-            # Eğer bu noktanın Z'si bile mevcut en iyi Z'den büyükse, bu noktayı ve sonrakileri atla (Sorted olduğu için)
+        for x, y, z in noktalar:
             if z > en_iyi_skor[0]:
                 break
-                
+
             for w, d, h in oryantasyonlar:
                 if not self.cakisma_var_mi(x, y, z, w, d, h):
-                    # Geçerli bir yerleşim bulundu. Skorunu hesapla.
-                    # Öncelik: En alt (Z), En arka (Y), En sol (X)
                     skor = (z, y, x)
-                    
                     if skor < en_iyi_skor:
                         en_iyi_skor = skor
                         en_iyi_yerlesim = (x, y, z, w, d, h)
-        
+
         if en_iyi_yerlesim:
-            x, y, z, w, d, h = en_iyi_yerlesim
-            yeni_yerlesim = Yerlesim(urun, x, y, z, w, d, h)
-            self.yerlesimler.append(yeni_yerlesim)
-            
-            # Yeni aday noktaları ekle (Sınır kontrolü ile gereksiz noktaları ele)
-            if x + w < self.en:
-                self.noktalar.append((x + w, y, z))
-            if y + d < self.boy:
-                self.noktalar.append((x, y + d, z))
-            if z + h < self.yukseklik:
-                self.noktalar.append((x, y, z + h))
-            
-            # Kullanılan noktayı listeden çıkar
-            if (x, y, z) in self.noktalar:
-                self.noktalar.remove((x, y, z))
-            return True
-            
-        return False
+            return en_iyi_skor, en_iyi_yerlesim
+        return None
+
+    def ekle(self, urun):
+        """Ürünü en uygun yere yerleştirmeye çalışır (3D Bin Packing)."""
+        uyum = self.en_iyi_uyum(urun)
+        if uyum is None:
+            return False
+
+        _, (x, y, z, w, d, h) = uyum
+        yeni_yerlesim = Yerlesim(urun, x, y, z, w, d, h)
+        self.yerlesimler.append(yeni_yerlesim)
+
+        if x + w < self.en:
+            self.noktalar.append((x + w, y, z))
+        if y + d < self.boy:
+            self.noktalar.append((x, y + d, z))
+        if z + h < self.yukseklik:
+            self.noktalar.append((x, y, z + h))
+
+        if (x, y, z) in self.noktalar:
+            self.noktalar.remove((x, y, z))
+        return True
 
     def __repr__(self):
         dolu_hacim = sum(y.w * y.d * y.h for y in self.yerlesimler)

@@ -52,14 +52,27 @@ class Palet:
                 return True
         return False
 
-    def ekle(self, urun):
-        """Ürünü en uygun yere yerleştirmeye çalışır (3D Bin Packing)."""
-        # Hacim kontrolü: Eğer ürün eklendiğinde %100 doluluk geçiliyorsa direkt reddet
+    def _uyum_skoru(self, x, y, z, w, d, h):
+        """Yerleşim için uyum skoru hesapla. Düşük skor daha iyi fit anlamına gelir."""
+        kalan_x = self.en - (x + w)
+        kalan_y = self.boy - (y + d)
+        kalan_z = self.yukseklik - (z + h)
+        taban_alani = w * d
+        temas_alani = 0
+        if z == 0:
+            temas_alani += w * d
+        if x == 0:
+            temas_alani += d * h
+        if y == 0:
+            temas_alani += w * h
+        return (z, y, x, kalan_x * kalan_y, kalan_z, -taban_alani, -temas_alani)
+
+    def en_iyi_uyum(self, urun):
+        """Mevcut noktalardan en iyi yerleşimi seç."""
         mevcut_hacim = sum(y.w * y.d * y.h for y in self.yerlesimler)
         if mevcut_hacim + urun.hacim > (self.en * self.boy * self.yukseklik):
-            return False
+            return None
 
-        # Ürünün 6 farklı döndürme ihtimali (W, D, H permütasyonları)
         oryantasyonlar = list(set([
             (urun.en, urun.boy, urun.yukseklik),
             (urun.en, urun.yukseklik, urun.boy),
@@ -68,60 +81,54 @@ class Palet:
             (urun.yukseklik, urun.en, urun.boy),
             (urun.yukseklik, urun.boy, urun.en)
         ]))
-        
-        # Akıllı Sıralama: Paletin uzun kenarına, kutunun uzun kenarını denk getirmeye çalış.
-        if self.en > self.boy:
-            # Paletin eni daha geniş, kutunun enini(w) maksimize edenleri önce dene
-            oryantasyonlar.sort(key=lambda x: x[0], reverse=True)
-        else:
-            # Paletin boyu daha uzun (1150 > 750), kutunun boyunu(d) maksimize edenleri önce dene
-            oryantasyonlar.sort(key=lambda x: x[1], reverse=True)
-        
-        # Aday noktaları Z (yükseklik), sonra Y, sonra X'e göre sırala.
-        # Bu, kutuları önce alta, sonra arkaya, sonra sola yaslamaya çalışır.
-        self.noktalar.sort(key=lambda p: (p[2], p[1], p[0]))
 
-        # Best Fit Stratejisi:
-        # İlk bulduğumuz yere koymak yerine (First Fit), tüm olası nokta ve oryantasyonları deneyip
-        # en iyi skoru vereni seçiyoruz.
+        if self.en > self.boy:
+            oryantasyonlar.sort(key=lambda x: (x[0] * x[1], x[0]), reverse=True)
+        else:
+            oryantasyonlar.sort(key=lambda x: (x[0] * x[1], x[1]), reverse=True)
+
+        self.noktalar = sorted(set(self.noktalar), key=lambda p: (p[2], p[1], p[0]))
+
         en_iyi_yerlesim = None
-        # Skor: (Z, Y, X) -> Küçük olması iyidir.
-        en_iyi_skor = (float('inf'), float('inf'), float('inf'))
+        en_iyi_skor = None
 
         for x, y, z in self.noktalar:
-            # Eğer bu noktanın Z'si bile mevcut en iyi Z'den büyükse, bu noktayı ve sonrakileri atla (Sorted olduğu için)
-            if z > en_iyi_skor[0]:
+            if en_iyi_skor is not None and z > en_iyi_skor[0]:
                 break
-                
+
             for w, d, h in oryantasyonlar:
                 if not self.cakisma_var_mi(x, y, z, w, d, h):
-                    # Geçerli bir yerleşim bulundu. Skorunu hesapla.
-                    # Öncelik: En alt (Z), En arka (Y), En sol (X)
-                    skor = (z, y, x)
-                    
-                    if skor < en_iyi_skor:
+                    skor = self._uyum_skoru(x, y, z, w, d, h)
+                    if en_iyi_skor is None or skor < en_iyi_skor:
                         en_iyi_skor = skor
                         en_iyi_yerlesim = (x, y, z, w, d, h)
-        
+
         if en_iyi_yerlesim:
-            x, y, z, w, d, h = en_iyi_yerlesim
-            yeni_yerlesim = Yerlesim(urun, x, y, z, w, d, h)
-            self.yerlesimler.append(yeni_yerlesim)
-            
-            # Yeni aday noktaları ekle (Sınır kontrolü ile gereksiz noktaları ele)
-            if x + w < self.en:
-                self.noktalar.append((x + w, y, z))
-            if y + d < self.boy:
-                self.noktalar.append((x, y + d, z))
-            if z + h < self.yukseklik:
-                self.noktalar.append((x, y, z + h))
-            
-            # Kullanılan noktayı listeden çıkar
-            if (x, y, z) in self.noktalar:
-                self.noktalar.remove((x, y, z))
-            return True
-            
-        return False
+            return en_iyi_skor, en_iyi_yerlesim
+        return None
+
+    def ekle(self, urun):
+        """Ürünü en uygun yere yerleştirmeye çalışır (3D Bin Packing)."""
+        uyum = self.en_iyi_uyum(urun)
+        if not uyum:
+            return False
+
+        _, (x, y, z, w, d, h) = uyum
+        yeni_yerlesim = Yerlesim(urun, x, y, z, w, d, h)
+        self.yerlesimler.append(yeni_yerlesim)
+
+        if x + w < self.en:
+            self.noktalar.append((x + w, y, z))
+        if y + d < self.boy:
+            self.noktalar.append((x, y + d, z))
+        if z + h < self.yukseklik:
+            self.noktalar.append((x, y, z + h))
+
+        if (x, y, z) in self.noktalar:
+            self.noktalar.remove((x, y, z))
+
+        self.noktalar = list(set(self.noktalar))
+        return True
 
     def __repr__(self):
         dolu_hacim = sum(y.w * y.d * y.h for y in self.yerlesimler)
@@ -148,26 +155,36 @@ def wms_simulasyon(wms_emri, palet_en, palet_boy, palet_yukseklik):
             tum_kutular.append(urun_bilgisi)
 
     # 2. Adım: Tüm kutuları hacimlerine göre büyükten küçüğe sırala.
-    sirali_kutular = sorted(tum_kutular, key=lambda kutu: kutu.hacim, reverse=True)
+    # Hacim eşitliğinde uzun kenar ve taban alanı dikkate alınır.
+    sirali_kutular = sorted(
+        tum_kutular,
+        key=lambda kutu: (kutu.hacim, max(kutu.en, kutu.boy, kutu.yukseklik), kutu.en * kutu.boy),
+        reverse=True
+    )
     
     # 3. Adım: Sıralanmış her bir kutuyu yerleştirmeye çalış.
     for kutu in sirali_kutular:
-        yerlestirildi = False
-        # Önce mevcut paletleri sırayla dene (First Fit)
+        en_iyi_palet = None
+        en_iyi_palet_skoru = None
+
         for palet in paletler:
-            if palet.ekle(kutu):
-                yerlestirildi = True
-                break # Kutu yerleşti, sonraki kutuya geç.
-        
-        # Mevcut paletlerin hiçbirine sığmadıysa yeni bir palet aç
-        if not yerlestirildi:
-            yeni_palet = Palet(palet_id=palet_sayaci, en=palet_en, boy=palet_boy, yukseklik=palet_yukseklik)
-            if yeni_palet.ekle(kutu):
-                paletler.append(yeni_palet)
-                palet_sayaci += 1
-            else:
-                # Bu durum, kutunun boş bir palete bile sığmadığı anlamına gelir.
-                print(f"UYARI: {kutu.urun_id} ID'li ürün ({kutu.en}x{kutu.boy}x{kutu.yukseklik}) palet boyutlarından büyük olduğu için yerleştirilemedi!")
+            uyum = palet.en_iyi_uyum(kutu)
+            if uyum:
+                skor, _ = uyum
+                if en_iyi_palet_skoru is None or skor < en_iyi_palet_skoru:
+                    en_iyi_palet_skoru = skor
+                    en_iyi_palet = palet
+
+        if en_iyi_palet:
+            en_iyi_palet.ekle(kutu)
+            continue
+
+        yeni_palet = Palet(palet_id=palet_sayaci, en=palet_en, boy=palet_boy, yukseklik=palet_yukseklik)
+        if yeni_palet.ekle(kutu):
+            paletler.append(yeni_palet)
+            palet_sayaci += 1
+        else:
+            print(f"UYARI: {kutu.urun_id} ID'li ürün ({kutu.en}x{kutu.boy}x{kutu.yukseklik}) palet boyutlarından büyük olduğu için yerleştirilemedi!")
 
     return paletler
 
@@ -235,16 +252,11 @@ if __name__ == "__main__":
     
     # --- ÖRNEK WMS EMRİ ---
     gelen_siparisler = [
-        Urun("ADFRPL18JO", 188, 386, 175, 10),
-        Urun("ADFTON10KS", 110, 221, 106, 10),
-        Urun("ADFTON36OV", 326, 326, 96, 20),
-        Urun("AGR16KS", 200, 380, 150, 7),
-        Urun("AGR19KS", 200, 380, 150, 30),
-        Urun("AGR25KS", 265, 266, 164, 20),
-        Urun("BNC01DM", 340, 464, 130, 10),
-        Urun("BNC02ST", 274, 402, 72, 3),
-        Urun("BNC03SO", 274, 402, 72, 3),
-        Urun("BNC04KHD", 281, 282, 141, 4)
+        Urun("ASCVNT18KS", 202, 378, 114, 15),
+        Urun("ASCBNC28CK", 284, 290, 124, 20),
+        Urun("ASCGRM21DZ", 228, 228, 142, 5),
+        Urun("ASCGRM30DZ", 316, 316, 122, 20),
+       
     ]
 
     print(f"Simülasyon Başlatılıyor... (Palet: {P_EN}x{P_BOY}x{P_YUK})\n")

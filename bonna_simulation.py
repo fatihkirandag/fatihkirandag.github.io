@@ -161,18 +161,31 @@ def wms_simulasyon(wms_emri, palet_en, palet_boy, palet_yukseklik):
                 sirali_emir.append(urun)
                 tum_kutular.append(urun)
 
-    # Tüm kutuları hacimlerine göre büyükten küçüğe sırala.
+    # Tüm kutuları maksimum hacme göre büyükten küçüğe sırala.
     # Bu sayede SKU'su ne olursa olsun en büyük kutular önce yerleşir, küçükler boşlukları doldurur.
-    sirali_emir = sorted(tum_kutular, key=lambda x: x.hacim, reverse=True)
+    sirali_emir = sorted(
+        tum_kutular,
+        key=lambda x: (x.hacim, max(x.en, x.boy, x.yukseklik)),
+        reverse=True
+    )
     
     for urun in sirali_emir:
         yerlestirildi = False
-        # Mevcut paletleri kontrol et
+        en_iyi_palet = None
+        en_iyi_palet_skoru = None
+
         for palet in paletler:
-            if palet.ekle(urun):
-                yerlestirildi = True
-                break
-        
+            uyum = palet.en_iyi_uyum(urun)
+            if uyum:
+                skor, _ = uyum
+                if en_iyi_palet_skoru is None or skor < en_iyi_palet_skoru:
+                    en_iyi_palet_skoru = skor
+                    en_iyi_palet = palet
+
+        if en_iyi_palet:
+            en_iyi_palet.ekle(urun)
+            yerlestirildi = True
+
         # Eğer hiçbir mevcut palete sığmadıysa yeni palet aç
         if not yerlestirildi:
             yeni_palet = Palet(palet_id=palet_sayaci, en=palet_en, boy=palet_boy, yukseklik=palet_yukseklik)
@@ -248,16 +261,11 @@ if __name__ == "__main__":
     
     # --- ÖRNEK WMS EMRİ ---
     gelen_siparisler = [
-        Urun("ADFRPL18JO", 188, 386, 175, 10),
-        Urun("ADFTON10KS", 110, 221, 106, 10),
-        Urun("ADFTON36OV", 326, 326, 96, 20),
-        Urun("AGR16KS", 200, 380, 150, 7),
-        Urun("AGR19KS", 200, 380, 150, 30),
-        Urun("AGR25KS", 265, 266, 164, 20),
-        Urun("BNC01DM", 340, 464, 130, 10),
-        Urun("BNC02ST", 274, 402, 72, 3),
-        Urun("BNC03SO", 274, 402, 72, 3),
-        Urun("BNC04KHD", 281, 282, 141, 4)
+        Urun("ASCVNT18KS", 202, 378, 114, 15),
+        Urun("ASCBNC28CK", 284, 290, 124, 20),
+        Urun("ASCGRM21DZ", 228, 228, 142, 5),
+        Urun("ASCGRM30DZ", 316, 316, 122, 20),
+       
     ]
 
     print(f"Simülasyon Başlatılıyor... (Palet: {P_EN}x{P_BOY}x{P_YUK})\n")
